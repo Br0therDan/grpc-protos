@@ -1,0 +1,59 @@
+name: Auto-generate Proto Stubs
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'protos/**/*.proto'
+      - 'buf.yaml'
+      - 'buf.gen.yaml'
+
+jobs:
+  generate-and-commit:
+    name: Generate Stubs and Commit
+    runs-on: ubuntu-latest
+    # Prevent infinite loop from commits triggering workflow
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Buf
+        uses: bufbuild/buf-action@v1
+        with:
+          version: '1.60.0'
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Generate Python stubs
+        run: |
+          echo "🔧 Generating Python stubs..."
+          buf generate --template buf.gen.yaml
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          git diff --quiet generated/ || echo "has_changes=true" >> $GITHUB_OUTPUT
+
+      - name: Commit generated code
+        if: steps.check_changes.outputs.has_changes == 'true'
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add generated/
+          git commit -m "chore: regenerate proto stubs [skip ci]"
+          git push
+
+      - name: Summary
+        run: |
+          if [ "${{ steps.check_changes.outputs.has_changes }}" == "true" ]; then
+            echo "✅ Generated code committed successfully"
+          else
+            echo "ℹ️ No changes in generated code"
+          fi
