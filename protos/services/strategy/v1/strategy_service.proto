@@ -2,26 +2,42 @@ syntax = "proto3";
 
 package strategy;
 
+import "google/protobuf/struct.proto";
+
 // Strategy Service - gRPC API
-// Used by Backtest Service for high-performance strategy version retrieval
+// Used by Backtest Service and GenAI Service for high-performance strategy operations
 
 service StrategyService {
   // Get a single strategy version
-  rpc GetStrategyVersion (GetStrategyVersionRequest) returns (StrategyVersionResponse);
+  rpc GetStrategyVersion(GetStrategyVersionRequest) returns (StrategyVersionResponse);
 
   // Batch get multiple strategy versions (streaming response)
-  rpc BatchGetStrategyVersions (BatchGetStrategyVersionsRequest) returns (stream StrategyVersionResponse);
+  rpc BatchGetStrategyVersions(BatchGetStrategyVersionsRequest) returns (stream StrategyVersionResponse);
 
   // Health check
-  rpc HealthCheck (HealthCheckRequest) returns (HealthCheckResponse);
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+
+  // --- New RPCs for GenAI Service ---
+
+  // Validate StrategyIR across multiple stages
+  rpc ValidateStrategyIR(ValidateIRRequest) returns (ValidationResponse);
+
+  // Get a single strategy template
+  rpc GetStrategyTemplate(GetTemplateRequest) returns (TemplateResponse);
+
+  // List all accessible templates (streaming)
+  rpc ListStrategyTemplates(ListTemplatesRequest) returns (stream TemplateResponse);
+
+  // Batch get multiple strategies (streaming)
+  rpc BatchGetStrategies(BatchGetStrategiesRequest) returns (stream StrategyResponse);
 }
 
 // Request Messages
 
 message GetStrategyVersionRequest {
-  string strategy_id = 1;  // Strategy ID
-  int32 seq = 2;           // Version sequence number
-  string user_id = 3;      // User ID for authorization
+  string strategy_id = 1; // Strategy ID
+  int32 seq = 2; // Version sequence number
+  string user_id = 3; // User ID for authorization
 }
 
 message BatchGetStrategyVersionsRequest {
@@ -36,14 +52,38 @@ message StrategyVersionIdentifier {
 
 message HealthCheckRequest {}
 
+// --- New Request Messages for GenAI Service ---
+
+message ValidateIRRequest {
+  string user_id = 1;
+  google.protobuf.Struct strategy_ir = 2;
+  repeated string stages = 3; // ["STRUCT", "STATIC", "RUNTIME"]
+}
+
+message GetTemplateRequest {
+  string template_id = 1;
+  string user_id = 2;
+}
+
+message ListTemplatesRequest {
+  string user_id = 1;
+  repeated string tags = 2; // Optional filter by tags
+  optional string visibility = 3; // Optional filter: "public", "system", "private"
+}
+
+message BatchGetStrategiesRequest {
+  repeated string strategy_ids = 1;
+  string user_id = 2;
+}
+
 // Response Messages
 
 message StrategyVersionResponse {
-  string id = 1;                    // MongoDB _id
+  string id = 1; // MongoDB _id
   string user_id = 2;
   string strategy_id = 3;
   int32 seq = 4;
-  string state = 5;                 // DRAFT, STRUCT_VALID, STATIC_VALID, READY_FOR_BACKTEST, etc.
+  string state = 5; // DRAFT, STRUCT_VALID, STATIC_VALID, READY_FOR_BACKTEST, etc.
   string graph_spec_version_id = 6;
   optional string rule_set_version_id = 7;
   optional string template_id = 8;
@@ -55,13 +95,13 @@ message StrategyVersionResponse {
   repeated ValidationResult validation_pipeline = 10;
 
   // Timestamps
-  string created_at = 11;           // ISO 8601 format
+  string created_at = 11; // ISO 8601 format
   string updated_at = 12;
 
   // Phase 5.5: DSL Single Source of Truth
-  optional string dsl_code = 13;           // Executable DSL code (required for backtest/live execution)
-  optional string dsl_code_hash = 14;      // SHA256 hash for cache invalidation
-  optional string source_type = 15;        // "graph" | "rules" | "dsl" (conversion provenance)
+  optional string dsl_code = 13; // Executable DSL code (required for backtest/live execution)
+  optional string dsl_code_hash = 14; // SHA256 hash for cache invalidation
+  optional string source_type = 15; // "graph" | "rules" | "dsl" (conversion provenance)
 }
 
 message GraphSpec {
@@ -71,8 +111,8 @@ message GraphSpec {
 
 message GraphNode {
   string id = 1;
-  string type = 2;                  // ACTION, CONDITION, PATTERN
-  map<string, string> config = 3;   // JSON serialized config
+  string type = 2; // ACTION, CONDITION, PATTERN
+  map<string, string> config = 3; // JSON serialized config
 }
 
 message GraphEdge {
@@ -83,21 +123,69 @@ message GraphEdge {
 }
 
 message ValidationResult {
-  string stage = 1;                 // STRUCT, STATIC, TYPE_INFERENCE, COMPILE, FINALIZE
-  string status = 2;                // PENDING, PASS, FAIL
+  string stage = 1; // STRUCT, STATIC, TYPE_INFERENCE, COMPILE, FINALIZE
+  string status = 2; // PENDING, PASS, FAIL
   repeated string errors = 3;
   repeated string warnings = 4;
   optional string timestamp = 5;
 }
 
 message HealthCheckResponse {
-  string status = 1;                // "healthy"
-  string service = 2;               // "strategy-service"
+  string status = 1; // "healthy"
+  string service = 2; // "strategy-service"
   string version = 3;
 }
 
+// --- New Response Messages for GenAI Service ---
+
+message ValidationResponse {
+  bool is_valid = 1;
+  repeated ValidationError errors = 2;
+  repeated ValidationWarning warnings = 3;
+  string stage = 4; // Comma-separated stages executed
+}
+
+message ValidationError {
+  string code = 1;
+  string message = 2;
+  string field_path = 3;
+  map<string, string> metadata = 4;
+}
+
+message ValidationWarning {
+  string code = 1;
+  string message = 2;
+  optional string field_path = 3;
+}
+
+message TemplateResponse {
+  string id = 1;
+  string user_id = 2;
+  string name = 3;
+  string description = 4;
+  string visibility = 5; // "public" | "system" | "private"
+  repeated string tags = 6;
+  google.protobuf.Struct default_graph_nodes = 7;
+  google.protobuf.Struct default_graph_edges = 8;
+  google.protobuf.Struct default_rules = 9;
+  google.protobuf.Struct default_execution_profile = 10;
+  string created_at = 11;
+  string updated_at = 12;
+}
+
+message StrategyResponse {
+  string id = 1;
+  string user_id = 2;
+  string name = 3;
+  string description = 4;
+  string status = 5; // "draft" | "active" | "archived"
+  repeated string tags = 6;
+  string created_at = 7;
+  string updated_at = 8;
+}
+
 // Error handling (standard gRPC status codes)
-// - NOT_FOUND: Strategy version not found
+// - NOT_FOUND: Strategy version/template not found
 // - PERMISSION_DENIED: User not authorized
 // - INVALID_ARGUMENT: Invalid request parameters
 // - UNAVAILABLE: Service temporarily unavailable
