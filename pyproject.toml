@@ -30,7 +30,7 @@ Repository = "https://github.com/Br0therDan/grpc-protos"
 Issues = "https://github.com/Br0therDan/grpc-protos/issues"
 
 [tool.setuptools]
-package-dir = {"" = "generated"}
+package-dir = { "" = "generated" }
 
 [tool.setuptools.packages.find]
 where = ["generated"]
