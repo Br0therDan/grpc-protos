@@ -22,8 +22,8 @@ _runtime_version.ValidateProtobufRuntimeVersion(
 _sym_db = _symbol_database.Default()
 
 
-from protos.common import metadata_pb2 as protos_dot_common_dot_metadata__pb2
-from protos.common import pagination_pb2 as protos_dot_common_dot_pagination__pb2
+from mysingle_protos.protos.common import metadata_pb2 as protos_dot_common_dot_metadata__pb2
+from mysingle_protos.protos.common import pagination_pb2 as protos_dot_common_dot_pagination__pb2
 from google.protobuf import struct_pb2 as google_dot_protobuf_dot_struct__pb2
 
 
