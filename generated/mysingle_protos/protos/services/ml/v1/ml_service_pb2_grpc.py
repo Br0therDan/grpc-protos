@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-from protos.services.ml.v1 import ml_service_pb2 as protos_dot_services_dot_ml_dot_v1_dot_ml__service__pb2
+from mysingle_protos.protos.services.ml.v1 import ml_service_pb2 as protos_dot_services_dot_ml_dot_v1_dot_ml__service__pb2
 
 
 class MLServiceStub(object):

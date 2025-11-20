@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-from protos.services.genai.v1 import narrative_pb2 as protos_dot_services_dot_genai_dot_v1_dot_narrative__pb2
+from mysingle_protos.protos.services.genai.v1 import narrative_pb2 as protos_dot_services_dot_genai_dot_v1_dot_narrative__pb2
 
 
 class NarrativeServiceStub(object):
