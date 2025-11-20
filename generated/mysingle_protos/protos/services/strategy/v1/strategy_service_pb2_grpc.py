@@ -7,7 +7,7 @@ from mysingle_protos.protos.services.strategy.v1 import strategy_service_pb2 as 
 
 class StrategyServiceStub(object):
     """Strategy Service - gRPC API
-    Used by Backtest Service for high-performance strategy version retrieval
+    Used by Backtest Service and GenAI Service for high-performance strategy operations
 
     """
 
@@ -32,11 +32,31 @@ class StrategyServiceStub(object):
                 request_serializer=protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.HealthCheckRequest.SerializeToString,
                 response_deserializer=protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.HealthCheckResponse.FromString,
                 _registered_method=True)
+        self.ValidateStrategyIR = channel.unary_unary(
+                '/strategy.StrategyService/ValidateStrategyIR',
+                request_serializer=protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.ValidateIRRequest.SerializeToString,
+                response_deserializer=protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.ValidationResponse.FromString,
+                _registered_method=True)
+        self.GetStrategyTemplate = channel.unary_unary(
+                '/strategy.StrategyService/GetStrategyTemplate',
+                request_serializer=protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.GetTemplateRequest.SerializeToString,
+                response_deserializer=protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.TemplateResponse.FromString,
+                _registered_method=True)
+        self.ListStrategyTemplates = channel.unary_stream(
+                '/strategy.StrategyService/ListStrategyTemplates',
+                request_serializer=protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.ListTemplatesRequest.SerializeToString,
+                response_deserializer=protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.TemplateResponse.FromString,
+                _registered_method=True)
+        self.BatchGetStrategies = channel.unary_stream(
+                '/strategy.StrategyService/BatchGetStrategies',
+                request_serializer=protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.BatchGetStrategiesRequest.SerializeToString,
+                response_deserializer=protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.StrategyResponse.FromString,
+                _registered_method=True)
 
 
 class StrategyServiceServicer(object):
     """Strategy Service - gRPC API
-    Used by Backtest Service for high-performance strategy version retrieval
+    Used by Backtest Service and GenAI Service for high-performance strategy operations
 
     """
 
@@ -61,6 +81,36 @@ class StrategyServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def ValidateStrategyIR(self, request, context):
+        """--- New RPCs for GenAI Service ---
+
+        Validate StrategyIR across multiple stages
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetStrategyTemplate(self, request, context):
+        """Get a single strategy template
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def ListStrategyTemplates(self, request, context):
+        """List all accessible templates (streaming)
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def BatchGetStrategies(self, request, context):
+        """Batch get multiple strategies (streaming)
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_StrategyServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -79,6 +129,26 @@ def add_StrategyServiceServicer_to_server(servicer, server):
                     request_deserializer=protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.HealthCheckRequest.FromString,
                     response_serializer=protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.HealthCheckResponse.SerializeToString,
             ),
+            'ValidateStrategyIR': grpc.unary_unary_rpc_method_handler(
+                    servicer.ValidateStrategyIR,
+                    request_deserializer=protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.ValidateIRRequest.FromString,
+                    response_serializer=protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.ValidationResponse.SerializeToString,
+            ),
+            'GetStrategyTemplate': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetStrategyTemplate,
+                    request_deserializer=protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.GetTemplateRequest.FromString,
+                    response_serializer=protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.TemplateResponse.SerializeToString,
+            ),
+            'ListStrategyTemplates': grpc.unary_stream_rpc_method_handler(
+                    servicer.ListStrategyTemplates,
+                    request_deserializer=protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.ListTemplatesRequest.FromString,
+                    response_serializer=protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.TemplateResponse.SerializeToString,
+            ),
+            'BatchGetStrategies': grpc.unary_stream_rpc_method_handler(
+                    servicer.BatchGetStrategies,
+                    request_deserializer=protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.BatchGetStrategiesRequest.FromString,
+                    response_serializer=protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.StrategyResponse.SerializeToString,
+            ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
             'strategy.StrategyService', rpc_method_handlers)
@@ -89,7 +159,7 @@ def add_StrategyServiceServicer_to_server(servicer, server):
  # This class is part of an EXPERIMENTAL API.
 class StrategyService(object):
     """Strategy Service - gRPC API
-    Used by Backtest Service for high-performance strategy version retrieval
+    Used by Backtest Service and GenAI Service for high-performance strategy operations
 
     """
 
@@ -164,6 +234,114 @@ class StrategyService(object):
             '/strategy.StrategyService/HealthCheck',
             protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.HealthCheckRequest.SerializeToString,
             protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.HealthCheckResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def ValidateStrategyIR(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/strategy.StrategyService/ValidateStrategyIR',
+            protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.ValidateIRRequest.SerializeToString,
+            protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.ValidationResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetStrategyTemplate(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/strategy.StrategyService/GetStrategyTemplate',
+            protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.GetTemplateRequest.SerializeToString,
+            protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.TemplateResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def ListStrategyTemplates(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_stream(
+            request,
+            target,
+            '/strategy.StrategyService/ListStrategyTemplates',
+            protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.ListTemplatesRequest.SerializeToString,
+            protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.TemplateResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def BatchGetStrategies(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_stream(
+            request,
+            target,
+            '/strategy.StrategyService/BatchGetStrategies',
+            protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.BatchGetStrategiesRequest.SerializeToString,
+            protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.StrategyResponse.FromString,
             options,
             channel_credentials,
             insecure,
