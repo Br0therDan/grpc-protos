@@ -5,6 +5,11 @@ __pycache__/
 dist/
 build/
 
+# Virtual environments
+.venv/
+venv/
+env/
+
 # IDEs
 .vscode/
 .idea/
@@ -15,5 +20,4 @@ build/
 .DS_Store
 
 # Python
-venv/
 .pytest_cache/
