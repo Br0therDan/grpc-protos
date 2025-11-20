@@ -1,8 +1,8 @@
-version: v1
+version: v2
 
 plugins:
-  - plugin: buf.build/protocolbuffers/python
+  - remote: buf.build/protocolbuffers/python
     out: generated/mysingle_protos
   
-  - plugin: buf.build/grpc/python
+  - remote: buf.build/grpc/python
     out: generated/mysingle_protos
