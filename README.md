@@ -2,6 +2,11 @@
 
 Centralized gRPC proto file repository for MySingle Quant microservices platform.
 
+## 📚 Documentation
+
+- **[RELEASE_PROCESS.md](./RELEASE_PROCESS.md)** - 표준 릴리스 프로세스 가이드 (필독!)
+- **[Development Workflow](#development-workflow)** - Proto 파일 개발 및 배포 절차
+
 ## Quick Start
 
 ### Install Buf
