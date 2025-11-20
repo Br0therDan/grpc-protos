@@ -1,0 +1,23 @@
+# Generated code
+generated/
+*.pyc
+__pycache__/
+*.egg-info/
+dist/
+build/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+
+# Buf
+buf.lock
+
+# Python
+venv/
+.pytest_cache/

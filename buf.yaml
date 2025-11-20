@@ -1,0 +1,17 @@
+version: v1
+name: buf.build/mysingle/protos
+deps:
+  - buf.build/googleapis/googleapis
+
+lint:
+  use:
+    - DEFAULT
+    - COMMENTS
+    - UNARY_RPC
+  except:
+    - PACKAGE_VERSION_SUFFIX  # Allow v1, v2 suffixes
+  
+breaking:
+  use:
+    - FILE
+  ignore_unstable_packages: true

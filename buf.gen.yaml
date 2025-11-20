@@ -1,0 +1,13 @@
+version: v1
+managed:
+  enabled: true
+  python_package_prefix: mysingle_protos
+
+plugins:
+  - plugin: buf.build/protocolbuffers/python
+    out: generated/python
+    opt: 
+      - pyi_out=generated/python
+  
+  - plugin: buf.build/grpc/python
+    out: generated/python

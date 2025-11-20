@@ -1,0 +1,1016 @@
+// Market Data Service gRPC API Definition
+// Version: 1.0.0
+//
+// This proto file defines the complete gRPC contract for Market Data Service,
+// supporting all domains: Stock, Forex, Crypto, Fundamental, Intelligence, Economic, Commodity, Options
+
+syntax = "proto3";
+
+package market_data;
+
+// ============================================================================
+// Common Messages
+// ============================================================================
+
+// Standard OHLCV bar structure used across all asset classes
+message OHLCVBar {
+  string timestamp = 1;            // ISO 8601 format timestamp
+  double open = 2;
+  double high = 3;
+  double low = 4;
+  double close = 5;
+  int64 volume = 6;
+  optional double adjusted_close = 7;
+  optional double dividend_amount = 8;
+  optional double split_coefficient = 9;
+}
+
+// Pagination metadata
+message Pagination {
+  int32 page = 1;
+  int32 page_size = 2;
+  int32 total = 3;
+  int32 total_pages = 4;
+}
+
+// ============================================================================
+// Stock Domain Messages & Service
+// ============================================================================
+
+message GetDailyOHLCVRequest {
+  string symbol = 1;
+  optional string start_date = 2;     // YYYY-MM-DD
+  optional string end_date = 3;       // YYYY-MM-DD
+  optional string outputsize = 4;     // "compact" or "full"
+  optional bool adjusted = 5;         // Include adjusted close
+}
+
+message GetIntradayOHLCVRequest {
+  string symbol = 1;
+  optional string interval = 2;       // "1min", "5min", "15min", "30min", "60min"
+  optional string start_date = 3;
+  optional string end_date = 4;
+  optional string outputsize = 5;
+  optional bool adjusted = 6;
+  optional string month = 7;          // YYYY-MM format for specific month
+}
+
+message GetWeeklyOHLCVRequest {
+  string symbol = 1;
+  optional string start_date = 2;
+  optional string end_date = 3;
+  optional bool adjusted = 4;
+}
+
+message GetMonthlyOHLCVRequest {
+  string symbol = 1;
+  optional string start_date = 2;
+  optional string end_date = 3;
+  optional bool adjusted = 4;
+}
+
+message OHLCVResponse {
+  string symbol = 1;
+  string interval = 2;                // "1d", "1w", "1mo", "5min", etc.
+  repeated OHLCVBar bars = 3;
+  int32 count = 4;
+  bool cached = 5;
+  string source = 6;                  // "alpha_vantage", "yahoo_finance", etc.
+  optional string cache_timestamp = 7;
+}
+
+message GetQuoteRequest {
+  string symbol = 1;
+}
+
+message QuoteData {
+  string symbol = 1;
+  double open = 2;
+  double high = 3;
+  double low = 4;
+  double price = 5;
+  int64 volume = 6;
+  string latest_trading_day = 7;
+  double previous_close = 8;
+  double change = 9;
+  double change_percent = 10;
+}
+
+message QuoteResponse {
+  QuoteData quote = 1;
+  bool cached = 2;
+  optional string cache_timestamp = 3;
+}
+
+message SearchSymbolsRequest {
+  string keywords = 1;
+}
+
+message SymbolSearchResult {
+  string symbol = 1;
+  string name = 2;
+  string type = 3;
+  string region = 4;
+  string market_open = 5;
+  string market_close = 6;
+  string timezone = 7;
+  string currency = 8;
+  double match_score = 9;
+}
+
+message SearchSymbolsResponse {
+  repeated SymbolSearchResult results = 1;
+  int32 count = 2;
+}
+
+// ============================================================================
+// Forex Domain Messages & Service
+// ============================================================================
+
+message GetForexDailyRequest {
+  string from_symbol = 1;
+  string to_symbol = 2;
+  optional string start_date = 3;
+  optional string end_date = 4;
+  optional string outputsize = 5;
+}
+
+message GetForexIntradayRequest {
+  string from_symbol = 1;
+  string to_symbol = 2;
+  optional string interval = 3;
+  optional string start_date = 4;
+  optional string end_date = 5;
+  optional string outputsize = 6;
+}
+
+message GetForexWeeklyRequest {
+  string from_symbol = 1;
+  string to_symbol = 2;
+  optional string start_date = 3;
+  optional string end_date = 4;
+}
+
+message GetForexMonthlyRequest {
+  string from_symbol = 1;
+  string to_symbol = 2;
+  optional string start_date = 3;
+  optional string end_date = 4;
+}
+
+message ForexResponse {
+  string from_symbol = 1;
+  string to_symbol = 2;
+  string interval = 3;
+  repeated OHLCVBar bars = 4;
+  int32 count = 5;
+  bool cached = 6;
+  optional string cache_timestamp = 7;
+}
+
+message GetForexRateRequest {
+  string from_currency = 1;
+  string to_currency = 2;
+}
+
+message ForexRateData {
+  string from_currency_code = 1;
+  string from_currency_name = 2;
+  string to_currency_code = 3;
+  string to_currency_name = 4;
+  double exchange_rate = 5;
+  string last_refreshed = 6;
+  string time_zone = 7;
+  double bid_price = 8;
+  double ask_price = 9;
+}
+
+message ForexRateResponse {
+  ForexRateData rate = 1;
+  bool cached = 2;
+  optional string cache_timestamp = 3;
+}
+
+message ListForexPairsRequest {
+  // Empty request for listing all available pairs
+}
+
+message ForexPair {
+  string from_symbol = 1;
+  string to_symbol = 2;
+  string name = 3;
+}
+
+message ListForexPairsResponse {
+  repeated ForexPair pairs = 1;
+  int32 count = 2;
+}
+
+// ============================================================================
+// Crypto Domain Messages & Service
+// ============================================================================
+
+message GetCryptoDailyRequest {
+  string symbol = 1;
+  string market = 2;                  // e.g., "USD"
+  optional string start_date = 3;
+  optional string end_date = 4;
+}
+
+message GetCryptoIntradayRequest {
+  string symbol = 1;
+  string market = 2;
+  optional string interval = 3;
+  optional string start_date = 4;
+  optional string end_date = 5;
+  optional string outputsize = 6;
+}
+
+message GetCryptoWeeklyRequest {
+  string symbol = 1;
+  string market = 2;
+  optional string start_date = 3;
+  optional string end_date = 4;
+}
+
+message GetCryptoMonthlyRequest {
+  string symbol = 1;
+  string market = 2;
+  optional string start_date = 3;
+  optional string end_date = 4;
+}
+
+message CryptoResponse {
+  string symbol = 1;
+  string market = 2;
+  string interval = 3;
+  repeated OHLCVBar bars = 4;
+  int32 count = 5;
+  bool cached = 6;
+  optional string cache_timestamp = 7;
+}
+
+message ListCryptoSymbolsRequest {
+  // Empty request for listing all available crypto symbols
+}
+
+message CryptoSymbol {
+  string symbol = 1;
+  string name = 2;
+}
+
+message ListCryptoSymbolsResponse {
+  repeated CryptoSymbol symbols = 1;
+  int32 count = 2;
+}
+
+message BatchCryptoQuoteRequest {
+  repeated string symbols = 1;
+  string market = 2;
+}
+
+message CryptoQuoteData {
+  string symbol = 1;
+  string market = 2;
+  double price = 3;
+  int64 volume = 4;
+  double change_percent = 5;
+  string last_updated = 6;
+}
+
+message BatchCryptoQuoteResponse {
+  repeated CryptoQuoteData quotes = 1;
+  int32 count = 2;
+}
+
+// ============================================================================
+// Fundamental Domain Messages & Service
+// ============================================================================
+
+message GetCompanyOverviewRequest {
+  string symbol = 1;
+}
+
+message CompanyOverview {
+  string symbol = 1;
+  string asset_type = 2;
+  string name = 3;
+  string description = 4;
+  string cik = 5;
+  string exchange = 6;
+  string currency = 7;
+  string country = 8;
+  string sector = 9;
+  string industry = 10;
+  string address = 11;
+  string fiscal_year_end = 12;
+  string latest_quarter = 13;
+  int64 market_capitalization = 14;
+  string ebitda = 15;
+  double pe_ratio = 16;
+  double peg_ratio = 17;
+  double book_value = 18;
+  double dividend_per_share = 19;
+  double dividend_yield = 20;
+  double eps = 21;
+  double revenue_per_share_ttm = 22;
+  double profit_margin = 23;
+  double operating_margin_ttm = 24;
+  double return_on_assets_ttm = 25;
+  double return_on_equity_ttm = 26;
+  double revenue_ttm = 27;
+  double gross_profit_ttm = 28;
+  double diluted_eps_ttm = 29;
+  double quarterly_earnings_growth_yoy = 30;
+  double quarterly_revenue_growth_yoy = 31;
+  double analyst_target_price = 32;
+  double trailing_pe = 33;
+  double forward_pe = 34;
+  double price_to_sales_ratio_ttm = 35;
+  double price_to_book_ratio = 36;
+  double ev_to_revenue = 37;
+  double ev_to_ebitda = 38;
+  double beta = 39;
+  string week_52_high = 40;
+  string week_52_low = 41;
+  string day_50_moving_average = 42;
+  string day_200_moving_average = 43;
+  int64 shares_outstanding = 44;
+  string dividend_date = 45;
+  string ex_dividend_date = 46;
+}
+
+message CompanyOverviewResponse {
+  CompanyOverview overview = 1;
+  bool cached = 2;
+  optional string cache_timestamp = 3;
+}
+
+message GetIncomeStatementRequest {
+  string symbol = 1;
+}
+
+message IncomeStatement {
+  string fiscal_date_ending = 1;
+  string reported_currency = 2;
+  int64 gross_profit = 3;
+  int64 total_revenue = 4;
+  int64 cost_of_revenue = 5;
+  int64 cost_of_goods_and_services_sold = 6;
+  int64 operating_income = 7;
+  int64 selling_general_and_administrative = 8;
+  int64 research_and_development = 9;
+  int64 operating_expenses = 10;
+  int64 investment_income_net = 11;
+  int64 net_interest_income = 12;
+  int64 interest_income = 13;
+  int64 interest_expense = 14;
+  int64 non_interest_income = 15;
+  int64 other_non_operating_income = 16;
+  int64 depreciation = 17;
+  int64 depreciation_and_amortization = 18;
+  int64 income_before_tax = 19;
+  int64 income_tax_expense = 20;
+  int64 interest_and_debt_expense = 21;
+  int64 net_income_from_continuing_operations = 22;
+  int64 comprehensive_income_net_of_tax = 23;
+  int64 ebit = 24;
+  int64 ebitda = 25;
+  int64 net_income = 26;
+}
+
+message IncomeStatementResponse {
+  string symbol = 1;
+  repeated IncomeStatement annual_reports = 2;
+  repeated IncomeStatement quarterly_reports = 3;
+  bool cached = 4;
+  optional string cache_timestamp = 5;
+}
+
+message GetBalanceSheetRequest {
+  string symbol = 1;
+}
+
+message BalanceSheet {
+  string fiscal_date_ending = 1;
+  string reported_currency = 2;
+  int64 total_assets = 3;
+  int64 total_current_assets = 4;
+  int64 cash_and_cash_equivalents_at_carrying_value = 5;
+  int64 cash_and_short_term_investments = 6;
+  int64 inventory = 7;
+  int64 current_net_receivables = 8;
+  int64 total_non_current_assets = 9;
+  int64 property_plant_equipment = 10;
+  int64 accumulated_depreciation_amortization_ppe = 11;
+  int64 intangible_assets = 12;
+  int64 intangible_assets_excluding_goodwill = 13;
+  int64 goodwill = 14;
+  int64 investments = 15;
+  int64 long_term_investments = 16;
+  int64 short_term_investments = 17;
+  int64 other_current_assets = 18;
+  int64 other_non_current_assets = 19;
+  int64 total_liabilities = 20;
+  int64 total_current_liabilities = 21;
+  int64 current_accounts_payable = 22;
+  int64 deferred_revenue = 23;
+  int64 current_debt = 24;
+  int64 short_term_debt = 25;
+  int64 total_non_current_liabilities = 26;
+  int64 capital_lease_obligations = 27;
+  int64 long_term_debt = 28;
+  int64 current_long_term_debt = 29;
+  int64 long_term_debt_noncurrent = 30;
+  int64 short_long_term_debt_total = 31;
+  int64 other_current_liabilities = 32;
+  int64 other_non_current_liabilities = 33;
+  int64 total_shareholder_equity = 34;
+  int64 treasury_stock = 35;
+  int64 retained_earnings = 36;
+  int64 common_stock = 37;
+  int64 common_stock_shares_outstanding = 38;
+}
+
+message BalanceSheetResponse {
+  string symbol = 1;
+  repeated BalanceSheet annual_reports = 2;
+  repeated BalanceSheet quarterly_reports = 3;
+  bool cached = 4;
+  optional string cache_timestamp = 5;
+}
+
+message GetCashFlowRequest {
+  string symbol = 1;
+}
+
+message CashFlow {
+  string fiscal_date_ending = 1;
+  string reported_currency = 2;
+  int64 operating_cashflow = 3;
+  int64 payments_for_operating_activities = 4;
+  int64 proceeds_from_operating_activities = 5;
+  int64 change_in_operating_liabilities = 6;
+  int64 change_in_operating_assets = 7;
+  int64 depreciation_depletion_and_amortization = 8;
+  int64 capital_expenditures = 9;
+  int64 change_in_receivables = 10;
+  int64 change_in_inventory = 11;
+  int64 profit_loss = 12;
+  int64 cashflow_from_investment = 13;
+  int64 cashflow_from_financing = 14;
+  int64 proceeds_from_repayments_of_short_term_debt = 15;
+  int64 payments_for_repurchase_of_common_stock = 16;
+  int64 payments_for_repurchase_of_equity = 17;
+  int64 payments_for_repurchase_of_preferred_stock = 18;
+  int64 dividend_payout = 19;
+  int64 dividend_payout_common_stock = 20;
+  int64 dividend_payout_preferred_stock = 21;
+  int64 proceeds_from_issuance_of_common_stock = 22;
+  int64 proceeds_from_issuance_of_long_term_debt_and_capital_securities_net = 23;
+  int64 proceeds_from_issuance_of_preferred_stock = 24;
+  int64 proceeds_from_repurchase_of_equity = 25;
+  int64 proceeds_from_sale_of_treasury_stock = 26;
+  int64 change_in_cash_and_cash_equivalents = 27;
+  int64 change_in_exchange_rate = 28;
+  int64 net_income = 29;
+}
+
+message CashFlowResponse {
+  string symbol = 1;
+  repeated CashFlow annual_reports = 2;
+  repeated CashFlow quarterly_reports = 3;
+  bool cached = 4;
+  optional string cache_timestamp = 5;
+}
+
+message GetEarningsRequest {
+  string symbol = 1;
+}
+
+message EarningsData {
+  string fiscal_date_ending = 1;
+  double reported_eps = 2;
+  optional double estimated_eps = 3;
+  optional double surprise = 4;
+  optional double surprise_percentage = 5;
+}
+
+message EarningsResponse {
+  string symbol = 1;
+  repeated EarningsData annual_earnings = 2;
+  repeated EarningsData quarterly_earnings = 3;
+  bool cached = 4;
+  optional string cache_timestamp = 5;
+}
+
+message GetEarningsCalendarRequest {
+  optional string symbol = 1;
+  optional string horizon = 2;        // "3month", "6month", "12month"
+}
+
+message EarningsCalendarEvent {
+  string symbol = 1;
+  string name = 2;
+  string report_date = 3;
+  optional double fiscal_date_ending = 4;
+  optional double estimate = 5;
+  string currency = 6;
+}
+
+message EarningsCalendarResponse {
+  repeated EarningsCalendarEvent events = 1;
+  int32 count = 2;
+  bool cached = 3;
+  optional string cache_timestamp = 4;
+}
+
+message GetIPOCalendarRequest {
+  // Empty for now, can add date range filters
+}
+
+message IPOEvent {
+  string symbol = 1;
+  string name = 2;
+  string ipo_date = 3;
+  string price_range_low = 4;
+  string price_range_high = 5;
+  string currency = 6;
+  string exchange = 7;
+}
+
+message IPOCalendarResponse {
+  repeated IPOEvent events = 1;
+  int32 count = 2;
+  bool cached = 3;
+  optional string cache_timestamp = 4;
+}
+
+message GetETFProfileRequest {
+  string symbol = 1;
+}
+
+message ETFProfile {
+  string symbol = 1;
+  string asset_class = 2;
+  string asset_class_size = 3;
+  string asset_class_style = 4;
+  string brand_name = 5;
+  string category = 6;
+  string focus = 7;
+  string niche = 8;
+  string strategy = 9;
+  string developer = 10;
+  string index_tracked = 11;
+  string issuer = 12;
+  string inception_date = 13;
+  string data_source = 14;
+  string description = 15;
+}
+
+message ETFProfileResponse {
+  ETFProfile profile = 1;
+  bool cached = 2;
+  optional string cache_timestamp = 3;
+}
+
+message GetDividendsRequest {
+  string symbol = 1;
+}
+
+message DividendData {
+  string ex_dividend_date = 1;
+  double amount = 2;
+  optional string declaration_date = 3;
+  optional string record_date = 4;
+  optional string payment_date = 5;
+}
+
+message DividendsResponse {
+  string symbol = 1;
+  repeated DividendData dividends = 2;
+  int32 count = 3;
+  bool cached = 4;
+  optional string cache_timestamp = 5;
+}
+
+message GetSplitsRequest {
+  string symbol = 1;
+}
+
+message SplitData {
+  string date = 1;
+  double split_coefficient = 2;
+}
+
+message SplitsResponse {
+  string symbol = 1;
+  repeated SplitData splits = 2;
+  int32 count = 3;
+  bool cached = 4;
+  optional string cache_timestamp = 5;
+}
+
+// ============================================================================
+// Intelligence Domain Messages & Service
+// ============================================================================
+
+message GetNewsRequest {
+  optional string tickers = 1;         // Comma-separated tickers
+  optional string topics = 2;          // Comma-separated topics
+  optional string time_from = 3;       // YYYYMMDDTHHMM
+  optional string time_to = 4;         // YYYYMMDDTHHMM
+  optional string sort = 5;            // "LATEST", "EARLIEST", "RELEVANCE"
+  optional int32 limit = 6;            // Max 1000
+}
+
+message NewsArticle {
+  string title = 1;
+  string url = 2;
+  string time_published = 3;
+  repeated string authors = 4;
+  string summary = 5;
+  string banner_image = 6;
+  string source = 7;
+  string category_within_source = 8;
+  string source_domain = 9;
+  repeated NewsTicker topics = 10;
+  double overall_sentiment_score = 11;
+  string overall_sentiment_label = 12;
+  repeated TickerSentiment ticker_sentiment = 13;
+}
+
+message NewsTicker {
+  string topic = 1;
+  double relevance_score = 2;
+}
+
+message TickerSentiment {
+  string ticker = 1;
+  double relevance_score = 2;
+  double ticker_sentiment_score = 3;
+  string ticker_sentiment_label = 4;
+}
+
+message NewsResponse {
+  repeated NewsArticle articles = 1;
+  int32 count = 2;
+  string sentiment_score_definition = 3;
+  string relevance_score_definition = 4;
+  bool cached = 5;
+  optional string cache_timestamp = 6;
+}
+
+message GetTopGainersLosersRequest {
+  // Empty request
+}
+
+message StockMover {
+  string ticker = 1;
+  double price = 2;
+  double change_amount = 3;
+  double change_percentage = 4;
+  int64 volume = 5;
+}
+
+message TopGainersLosersResponse {
+  repeated StockMover top_gainers = 1;
+  repeated StockMover top_losers = 2;
+  repeated StockMover most_actively_traded = 3;
+  string last_updated = 4;
+  bool cached = 5;
+  optional string cache_timestamp = 6;
+}
+
+message GetAnalystRatingsRequest {
+  string symbol = 1;
+}
+
+message AnalystRating {
+  string analyst_firm = 1;
+  string rating = 2;
+  optional double target_price = 3;
+  string date = 4;
+}
+
+message AnalystRatingsResponse {
+  string symbol = 1;
+  repeated AnalystRating ratings = 2;
+  int32 count = 3;
+  bool cached = 4;
+  optional string cache_timestamp = 5;
+}
+
+message GetInsiderTransactionsRequest {
+  string symbol = 1;
+}
+
+message InsiderTransaction {
+  string insider_name = 1;
+  string position = 2;
+  string transaction_type = 3;
+  string transaction_date = 4;
+  int32 shares = 5;
+  optional double price_per_share = 6;
+  int64 value = 7;
+}
+
+message InsiderTransactionsResponse {
+  string symbol = 1;
+  repeated InsiderTransaction transactions = 2;
+  int32 count = 3;
+  bool cached = 4;
+  optional string cache_timestamp = 5;
+}
+
+message GetEarningsTranscriptRequest {
+  string symbol = 1;
+  optional string year = 2;
+  optional string quarter = 3;
+}
+
+message EarningsTranscript {
+  string symbol = 1;
+  string quarter = 2;
+  string year = 3;
+  string transcript = 4;
+  string date = 5;
+}
+
+message EarningsTranscriptResponse {
+  EarningsTranscript data = 1;
+  bool cached = 2;
+  optional string cache_timestamp = 3;
+}
+
+// ============================================================================
+// Economic Indicators Domain Messages & Service
+// ============================================================================
+
+message GetGDPRequest {
+  optional string interval = 1;        // "annual", "quarterly"
+}
+
+message EconomicDataPoint {
+  string date = 1;
+  double value = 2;
+}
+
+message EconomicIndicatorResponse {
+  string name = 1;
+  string interval = 2;
+  string unit = 3;
+  repeated EconomicDataPoint data = 4;
+  int32 count = 5;
+  bool cached = 6;
+  optional string cache_timestamp = 7;
+}
+
+message GetGDPPerCapitaRequest {
+  // Empty for now
+}
+
+message GetInflationRequest {
+  // Empty for now
+}
+
+message GetCPIRequest {
+  optional string interval = 1;        // "monthly", "semiannual"
+}
+
+message GetFederalFundsRateRequest {
+  optional string interval = 1;        // "daily", "weekly", "monthly"
+}
+
+message GetTreasuryYieldRequest {
+  optional string interval = 1;        // "daily", "weekly", "monthly"
+  optional string maturity = 2;        // "3month", "2year", "5year", "7year", "10year", "30year"
+}
+
+message GetRetailSalesRequest {
+  // Empty for now
+}
+
+message GetDurablesRequest {
+  // Empty for now
+}
+
+message GetUnemploymentRequest {
+  // Empty for now
+}
+
+message GetNonfarmPayrollRequest {
+  // Empty for now
+}
+
+// ============================================================================
+// Commodity Domain Messages & Service
+// ============================================================================
+
+message GetCommodityRequest {
+  string commodity = 1;                // "wti", "brent", "natural_gas", "copper", etc.
+  optional string interval = 2;        // "daily", "weekly", "monthly"
+}
+
+message CommodityResponse {
+  string name = 1;
+  string interval = 2;
+  string unit = 3;
+  repeated EconomicDataPoint data = 4;
+  int32 count = 5;
+  bool cached = 6;
+  optional string cache_timestamp = 7;
+}
+
+message GetAllCommoditiesRequest {
+  optional string interval = 1;
+}
+
+message AllCommoditiesResponse {
+  map<string, CommodityResponse> commodities = 1;
+  int32 count = 2;
+  bool cached = 3;
+  optional string cache_timestamp = 4;
+}
+
+// ============================================================================
+// Options Domain Messages & Service
+// ============================================================================
+
+message GetOptionsChainRequest {
+  string symbol = 1;
+  optional string date = 2;            // YYYY-MM-DD or "latest"
+}
+
+message OptionContract {
+  string contract_id = 1;
+  string symbol = 2;
+  string expiration = 3;
+  double strike = 4;
+  string type = 5;                     // "call" or "put"
+  optional double last = 6;
+  optional double mark = 7;
+  optional double bid = 8;
+  optional double bid_size = 9;
+  optional double ask = 10;
+  optional double ask_size = 11;
+  optional int64 volume = 12;
+  optional int64 open_interest = 13;
+  optional string date = 14;
+  optional double implied_volatility = 15;
+  optional double delta = 16;
+  optional double gamma = 17;
+  optional double theta = 18;
+  optional double vega = 19;
+  optional double rho = 20;
+}
+
+message OptionsChainResponse {
+  string symbol = 1;
+  repeated OptionContract contracts = 2;
+  int32 count = 3;
+  bool cached = 4;
+  optional string cache_timestamp = 5;
+}
+
+message GetHistoricalOptionsRequest {
+  string symbol = 1;
+  optional string date = 2;
+}
+
+message HistoricalOptionsResponse {
+  string symbol = 1;
+  string date = 2;
+  repeated OptionContract contracts = 3;
+  int32 count = 4;
+  bool cached = 5;
+  optional string cache_timestamp = 6;
+}
+
+message GetOptionContractRequest {
+  string contract_id = 1;
+}
+
+message OptionContractResponse {
+  OptionContract contract = 1;
+  bool cached = 2;
+  optional string cache_timestamp = 3;
+}
+
+// ============================================================================
+// Service Info & Health
+// ============================================================================
+
+message HealthCheckRequest {
+  // Empty request
+}
+
+message HealthCheckResponse {
+  string status = 1;                   // "healthy", "degraded", "unhealthy"
+  string service = 2;
+  string version = 3;
+  int64 uptime_seconds = 4;
+  int64 cache_size = 5;
+  map<string, int32> data_sources = 6; // data source name -> status (1=active, 0=inactive)
+}
+
+message GetServiceInfoRequest {
+  // Empty request
+}
+
+message ServiceInfo {
+  string service_name = 1;
+  string version = 2;
+  string environment = 3;
+  repeated string supported_assets = 4;
+  repeated string data_providers = 5;
+  map<string, string> features = 6;
+}
+
+message GetCacheStatsRequest {
+  // Empty request
+}
+
+message CacheStats {
+  int64 total_entries = 1;
+  int64 total_size_bytes = 2;
+  double hit_rate = 3;
+  int64 hits = 4;
+  int64 misses = 5;
+  map<string, int64> entries_by_domain = 6;
+}
+
+// ============================================================================
+// Main Service Definition
+// ============================================================================
+
+service MarketDataService {
+  // Health & Info
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+  rpc GetServiceInfo(GetServiceInfoRequest) returns (ServiceInfo);
+  rpc GetCacheStats(GetCacheStatsRequest) returns (CacheStats);
+
+  // Stock Domain
+  rpc GetDailyOHLCV(GetDailyOHLCVRequest) returns (OHLCVResponse);
+  rpc GetIntradayOHLCV(GetIntradayOHLCVRequest) returns (OHLCVResponse);
+  rpc GetWeeklyOHLCV(GetWeeklyOHLCVRequest) returns (OHLCVResponse);
+  rpc GetMonthlyOHLCV(GetMonthlyOHLCVRequest) returns (OHLCVResponse);
+  rpc GetQuote(GetQuoteRequest) returns (QuoteResponse);
+  rpc SearchSymbols(SearchSymbolsRequest) returns (SearchSymbolsResponse);
+
+  // Forex Domain
+  rpc GetForexDaily(GetForexDailyRequest) returns (ForexResponse);
+  rpc GetForexIntraday(GetForexIntradayRequest) returns (ForexResponse);
+  rpc GetForexWeekly(GetForexWeeklyRequest) returns (ForexResponse);
+  rpc GetForexMonthly(GetForexMonthlyRequest) returns (ForexResponse);
+  rpc GetForexRate(GetForexRateRequest) returns (ForexRateResponse);
+  rpc ListForexPairs(ListForexPairsRequest) returns (ListForexPairsResponse);
+
+  // Crypto Domain
+  rpc GetCryptoDaily(GetCryptoDailyRequest) returns (CryptoResponse);
+  rpc GetCryptoIntraday(GetCryptoIntradayRequest) returns (CryptoResponse);
+  rpc GetCryptoWeekly(GetCryptoWeeklyRequest) returns (CryptoResponse);
+  rpc GetCryptoMonthly(GetCryptoMonthlyRequest) returns (CryptoResponse);
+  rpc ListCryptoSymbols(ListCryptoSymbolsRequest) returns (ListCryptoSymbolsResponse);
+  rpc BatchCryptoQuote(BatchCryptoQuoteRequest) returns (BatchCryptoQuoteResponse);
+
+  // Fundamental Domain
+  rpc GetCompanyOverview(GetCompanyOverviewRequest) returns (CompanyOverviewResponse);
+  rpc GetIncomeStatement(GetIncomeStatementRequest) returns (IncomeStatementResponse);
+  rpc GetBalanceSheet(GetBalanceSheetRequest) returns (BalanceSheetResponse);
+  rpc GetCashFlow(GetCashFlowRequest) returns (CashFlowResponse);
+  rpc GetEarnings(GetEarningsRequest) returns (EarningsResponse);
+  rpc GetEarningsCalendar(GetEarningsCalendarRequest) returns (EarningsCalendarResponse);
+  rpc GetIPOCalendar(GetIPOCalendarRequest) returns (IPOCalendarResponse);
+  rpc GetETFProfile(GetETFProfileRequest) returns (ETFProfileResponse);
+  rpc GetDividends(GetDividendsRequest) returns (DividendsResponse);
+  rpc GetSplits(GetSplitsRequest) returns (SplitsResponse);
+
+  // Intelligence Domain
+  rpc GetNews(GetNewsRequest) returns (NewsResponse);
+  rpc GetTopGainersLosers(GetTopGainersLosersRequest) returns (TopGainersLosersResponse);
+  rpc GetAnalystRatings(GetAnalystRatingsRequest) returns (AnalystRatingsResponse);
+  rpc GetInsiderTransactions(GetInsiderTransactionsRequest) returns (InsiderTransactionsResponse);
+  rpc GetEarningsTranscript(GetEarningsTranscriptRequest) returns (EarningsTranscriptResponse);
+
+  // Economic Indicators Domain
+  rpc GetGDP(GetGDPRequest) returns (EconomicIndicatorResponse);
+  rpc GetGDPPerCapita(GetGDPPerCapitaRequest) returns (EconomicIndicatorResponse);
+  rpc GetInflation(GetInflationRequest) returns (EconomicIndicatorResponse);
+  rpc GetCPI(GetCPIRequest) returns (EconomicIndicatorResponse);
+  rpc GetFederalFundsRate(GetFederalFundsRateRequest) returns (EconomicIndicatorResponse);
+  rpc GetTreasuryYield(GetTreasuryYieldRequest) returns (EconomicIndicatorResponse);
+  rpc GetRetailSales(GetRetailSalesRequest) returns (EconomicIndicatorResponse);
+  rpc GetDurables(GetDurablesRequest) returns (EconomicIndicatorResponse);
+  rpc GetUnemployment(GetUnemploymentRequest) returns (EconomicIndicatorResponse);
+  rpc GetNonfarmPayroll(GetNonfarmPayrollRequest) returns (EconomicIndicatorResponse);
+
+  // Commodity Domain
+  rpc GetCommodity(GetCommodityRequest) returns (CommodityResponse);
+  rpc GetAllCommodities(GetAllCommoditiesRequest) returns (AllCommoditiesResponse);
+
+  // Options Domain
+  rpc GetOptionsChain(GetOptionsChainRequest) returns (OptionsChainResponse);
+  rpc GetHistoricalOptions(GetHistoricalOptionsRequest) returns (HistoricalOptionsResponse);
+  rpc GetOptionContract(GetOptionContractRequest) returns (OptionContractResponse);
+}
