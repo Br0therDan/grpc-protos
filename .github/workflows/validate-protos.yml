@@ -1,85 +1,85 @@
 name: Validate Protos
 
 on:
-  pull_request:
-    paths:
-      - 'protos/**/*.proto'
-      - 'buf.yaml'
-      - 'buf.gen.yaml'
+    pull_request:
+        paths:
+            - "protos/**/*.proto"
+            - "buf.yaml"
+            - "buf.gen.yaml"
 
 jobs:
-  lint:
-    name: Lint Proto Files
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    lint:
+        name: Lint Proto Files
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
 
-      - name: Setup Buf
-        uses: bufbuild/buf-action@v1
-        with:
-          version: '1.60.0'
+            - name: Setup Buf
+              uses: bufbuild/buf-action@v1
+              with:
+                  version: "1.60.0"
 
-      - name: Lint protos
-        run: buf lint
-        continue-on-error: true  # Warnings shouldn't block PRs
+            - name: Lint protos
+              run: buf lint
+              continue-on-error: true # Warnings shouldn't block PRs
 
-  breaking-changes:
-    name: Check Breaking Changes
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Need full history for comparison
+    breaking-changes:
+        name: Check Breaking Changes
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0 # Need full history for comparison
 
-      - name: Setup Buf
-        uses: bufbuild/buf-action@v1
-        with:
-          version: '1.60.0'
+            - name: Setup Buf
+              uses: bufbuild/buf-action@v1
+              with:
+                  version: "1.60.0"
 
-      - name: Check breaking changes against main
-        run: |
-          if buf breaking --against '.git#branch=main'; then
-            echo "✅ No breaking changes detected"
-          else
-            echo "⚠️ Breaking changes detected!"
-            echo "This requires a MAJOR version bump (e.g., 1.0.0 → 2.0.0)"
-            exit 1
-          fi
+            - name: Check breaking changes against main
+              run: |
+                  if buf breaking --against '.git#branch=main'; then
+                    echo "✅ No breaking changes detected"
+                  else
+                    echo "⚠️ Breaking changes detected!"
+                    echo "This requires a MAJOR version bump (e.g., 1.0.0 → 2.0.0)"
+                    exit 1
+                  fi
 
-  generate-test:
-    name: Test Code Generation
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    generate-test:
+        name: Test Code Generation
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
 
-      - name: Setup Buf
-        uses: bufbuild/buf-action@v1
-        with:
-          version: '1.60.0'
+            - name: Setup Buf
+              uses: bufbuild/buf-action@v1
+              with:
+                  version: "1.60.0"
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+            - name: Setup Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.11"
 
-      - name: Generate Python stubs
-        run: |
-          buf generate --template buf.gen.yaml
+            - name: Generate Python stubs
+              run: |
+                  buf generate --template buf.gen.yaml
 
-      - name: Verify generated code
-        run: |
-          if [ -d "generated/mysingle_protos" ]; then
-            echo "✅ Python stubs generated successfully"
-            ls -la generated/mysingle_protos/
-          else
-            echo "❌ Failed to generate Python stubs"
-            exit 1
-          fi
+            - name: Verify generated code
+              run: |
+                  if [ -d "generated/mysingle_protos" ]; then
+                    echo "✅ Python stubs generated successfully"
+                    ls -la generated/mysingle_protos/
+                  else
+                    echo "❌ Failed to generate Python stubs"
+                    exit 1
+                  fi
 
-      - name: Test package installation
-        run: |
-          pip install -e .
-          python -c "import mysingle_protos; print('Package import successful')"
+            - name: Test package installation
+              run: |
+                  pip install -e .
+                  python -c "import mysingle_protos; print('Package import successful')"

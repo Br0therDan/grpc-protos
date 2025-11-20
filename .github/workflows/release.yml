@@ -1,93 +1,93 @@
 name: Release Notification
 
 on:
-  push:
-    tags:
-      - 'v*.*.*'
+    push:
+        tags:
+            - "v*.*.*"
 
 jobs:
-  notify-release:
-    name: Notify New Release
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    notify-release:
+        name: Notify New Release
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
 
-      - name: Extract version
-        id: version
-        run: |
-          VERSION=${GITHUB_REF#refs/tags/v}
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "tag=$GITHUB_REF_NAME" >> $GITHUB_OUTPUT
+            - name: Extract version
+              id: version
+              run: |
+                  VERSION=${GITHUB_REF#refs/tags/v}
+                  echo "version=$VERSION" >> $GITHUB_OUTPUT
+                  echo "tag=$GITHUB_REF_NAME" >> $GITHUB_OUTPUT
 
-      - name: Read pyproject.toml version
-        id: package_version
-        run: |
-          PACKAGE_VERSION=$(grep '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/')
-          echo "package_version=$PACKAGE_VERSION" >> $GITHUB_OUTPUT
+            - name: Read pyproject.toml version
+              id: package_version
+              run: |
+                  PACKAGE_VERSION=$(grep '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/')
+                  echo "package_version=$PACKAGE_VERSION" >> $GITHUB_OUTPUT
 
-      - name: Verify version match
-        run: |
-          if [ "${{ steps.version.outputs.version }}" != "${{ steps.package_version.outputs.package_version }}" ]; then
-            echo "❌ Version mismatch!"
-            echo "Git tag: v${{ steps.version.outputs.version }}"
-            echo "pyproject.toml: ${{ steps.package_version.outputs.package_version }}"
-            exit 1
-          else
-            echo "✅ Version matches: ${{ steps.version.outputs.version }}"
-          fi
+            - name: Verify version match
+              run: |
+                  if [ "${{ steps.version.outputs.version }}" != "${{ steps.package_version.outputs.package_version }}" ]; then
+                    echo "❌ Version mismatch!"
+                    echo "Git tag: v${{ steps.version.outputs.version }}"
+                    echo "pyproject.toml: ${{ steps.package_version.outputs.package_version }}"
+                    exit 1
+                  else
+                    echo "✅ Version matches: ${{ steps.version.outputs.version }}"
+                  fi
 
-      - name: Generate changelog
-        id: changelog
-        run: |
-          # Get commits since last tag
-          PREVIOUS_TAG=$(git describe --abbrev=0 --tags $(git rev-list --tags --skip=1 --max-count=1) 2>/dev/null || echo "")
-          
-          if [ -z "$PREVIOUS_TAG" ]; then
-            echo "First release - showing all commits"
-            COMMITS=$(git log --pretty=format:"- %s (%h)" --no-merges)
-          else
-            echo "Changes since $PREVIOUS_TAG"
-            COMMITS=$(git log $PREVIOUS_TAG..HEAD --pretty=format:"- %s (%h)" --no-merges)
-          fi
-          
-          echo "commits<<EOF" >> $GITHUB_OUTPUT
-          echo "$COMMITS" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+            - name: Generate changelog
+              id: changelog
+              run: |
+                  # Get commits since last tag
+                  PREVIOUS_TAG=$(git describe --abbrev=0 --tags $(git rev-list --tags --skip=1 --max-count=1) 2>/dev/null || echo "")
 
-      - name: Create GitHub Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ steps.version.outputs.tag }}
-          release_name: Release ${{ steps.version.outputs.tag }}
-          body: |
-            ## mysingle-protos ${{ steps.version.outputs.tag }}
-            
-            ### Installation
-            ```bash
-            pip install git+https://github.com/Br0therDan/grpc-protos.git@${{ steps.version.outputs.tag }}
-            ```
-            
-            Or in requirements.txt:
-            ```
-            mysingle-protos @ git+https://github.com/Br0therDan/grpc-protos.git@${{ steps.version.outputs.tag }}
-            ```
-            
-            ### Changes
-            ${{ steps.changelog.outputs.commits }}
-            
-            ### Upgrade Instructions
-            ```bash
-            # Update requirements.txt version
-            # Then reinstall
-            pip install --upgrade --force-reinstall -r requirements.txt
-            ```
-          draft: false
-          prerelease: false
+                  if [ -z "$PREVIOUS_TAG" ]; then
+                    echo "First release - showing all commits"
+                    COMMITS=$(git log --pretty=format:"- %s (%h)" --no-merges)
+                  else
+                    echo "Changes since $PREVIOUS_TAG"
+                    COMMITS=$(git log $PREVIOUS_TAG..HEAD --pretty=format:"- %s (%h)" --no-merges)
+                  fi
 
-      - name: Summary
-        run: |
-          echo "🎉 Released mysingle-protos ${{ steps.version.outputs.tag }}"
-          echo "📦 Installation: pip install git+https://github.com/Br0therDan/grpc-protos.git@${{ steps.version.outputs.tag }}"
+                  echo "commits<<EOF" >> $GITHUB_OUTPUT
+                  echo "$COMMITS" >> $GITHUB_OUTPUT
+                  echo "EOF" >> $GITHUB_OUTPUT
+
+            - name: Create GitHub Release
+              uses: actions/create-release@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  tag_name: ${{ steps.version.outputs.tag }}
+                  release_name: Release ${{ steps.version.outputs.tag }}
+                  body: |
+                      ## mysingle-protos ${{ steps.version.outputs.tag }}
+
+                      ### Installation
+                      ```bash
+                      pip install git+https://github.com/Br0therDan/grpc-protos.git@${{ steps.version.outputs.tag }}
+                      ```
+
+                      Or in requirements.txt:
+                      ```
+                      mysingle-protos @ git+https://github.com/Br0therDan/grpc-protos.git@${{ steps.version.outputs.tag }}
+                      ```
+
+                      ### Changes
+                      ${{ steps.changelog.outputs.commits }}
+
+                      ### Upgrade Instructions
+                      ```bash
+                      # Update requirements.txt version
+                      # Then reinstall
+                      pip install --upgrade --force-reinstall -r requirements.txt
+                      ```
+                  draft: false
+                  prerelease: false
+
+            - name: Summary
+              run: |
+                  echo "🎉 Released mysingle-protos ${{ steps.version.outputs.tag }}"
+                  echo "📦 Installation: pip install git+https://github.com/Br0therDan/grpc-protos.git@${{ steps.version.outputs.tag }}"

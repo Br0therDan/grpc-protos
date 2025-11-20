@@ -1,0 +1,103 @@
+syntax = "proto3";
+
+package strategy;
+
+// Strategy Service - gRPC API
+// Used by Backtest Service for high-performance strategy version retrieval
+
+service StrategyService {
+  // Get a single strategy version
+  rpc GetStrategyVersion (GetStrategyVersionRequest) returns (StrategyVersionResponse);
+
+  // Batch get multiple strategy versions (streaming response)
+  rpc BatchGetStrategyVersions (BatchGetStrategyVersionsRequest) returns (stream StrategyVersionResponse);
+
+  // Health check
+  rpc HealthCheck (HealthCheckRequest) returns (HealthCheckResponse);
+}
+
+// Request Messages
+
+message GetStrategyVersionRequest {
+  string strategy_id = 1;  // Strategy ID
+  int32 seq = 2;           // Version sequence number
+  string user_id = 3;      // User ID for authorization
+}
+
+message BatchGetStrategyVersionsRequest {
+  repeated StrategyVersionIdentifier versions = 1;
+  string user_id = 2;
+}
+
+message StrategyVersionIdentifier {
+  string strategy_id = 1;
+  int32 seq = 2;
+}
+
+message HealthCheckRequest {}
+
+// Response Messages
+
+message StrategyVersionResponse {
+  string id = 1;                    // MongoDB _id
+  string user_id = 2;
+  string strategy_id = 3;
+  int32 seq = 4;
+  string state = 5;                 // DRAFT, STRUCT_VALID, STATIC_VALID, READY_FOR_BACKTEST, etc.
+  string graph_spec_version_id = 6;
+  optional string rule_set_version_id = 7;
+  optional string template_id = 8;
+
+  // Graph specification (embedded)
+  GraphSpec graph_spec = 9;
+
+  // Validation results
+  repeated ValidationResult validation_pipeline = 10;
+
+  // Timestamps
+  string created_at = 11;           // ISO 8601 format
+  string updated_at = 12;
+
+  // Phase 5.5: DSL Single Source of Truth
+  optional string dsl_code = 13;           // Executable DSL code (required for backtest/live execution)
+  optional string dsl_code_hash = 14;      // SHA256 hash for cache invalidation
+  optional string source_type = 15;        // "graph" | "rules" | "dsl" (conversion provenance)
+}
+
+message GraphSpec {
+  repeated GraphNode nodes = 1;
+  repeated GraphEdge edges = 2;
+}
+
+message GraphNode {
+  string id = 1;
+  string type = 2;                  // ACTION, CONDITION, PATTERN
+  map<string, string> config = 3;   // JSON serialized config
+}
+
+message GraphEdge {
+  string id = 1;
+  string source = 2;
+  string target = 3;
+  optional string label = 4;
+}
+
+message ValidationResult {
+  string stage = 1;                 // STRUCT, STATIC, TYPE_INFERENCE, COMPILE, FINALIZE
+  string status = 2;                // PENDING, PASS, FAIL
+  repeated string errors = 3;
+  repeated string warnings = 4;
+  optional string timestamp = 5;
+}
+
+message HealthCheckResponse {
+  string status = 1;                // "healthy"
+  string service = 2;               // "strategy-service"
+  string version = 3;
+}
+
+// Error handling (standard gRPC status codes)
+// - NOT_FOUND: Strategy version not found
+// - PERMISSION_DENIED: User not authorized
+// - INVALID_ARGUMENT: Invalid request parameters
+// - UNAVAILABLE: Service temporarily unavailable

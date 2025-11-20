@@ -1,0 +1,102 @@
+syntax = "proto3";
+
+package genai.dsl_validator;
+
+import "protos/common/metadata.proto";
+import "protos/common/error.proto";
+
+// DSL Validator 서비스
+service DSLValidatorService {
+  // DSL 코드 검증
+  rpc ValidateDSL(ValidateDSLRequest) returns (ValidateDSLResponse);
+
+  // DSL 자동 완성 제안
+  rpc AutocompleteDSL(AutocompleteDSLRequest) returns (AutocompleteDSLResponse);
+
+  // DSL 문법 도움말
+  rpc GetSyntaxHelp(GetSyntaxHelpRequest) returns (GetSyntaxHelpResponse);
+}
+
+// DSL 검증 요청
+message ValidateDSLRequest {
+  string dsl_code = 1;                      // DSL 코드
+  ValidationType validation_type = 2;       // 검증 타입
+  common.Metadata metadata = 3;             // 요청 메타데이터
+}
+
+// 검증 타입
+enum ValidationType {
+  VALIDATION_TYPE_UNSPECIFIED = 0;
+  VALIDATION_TYPE_SYNTAX = 1;               // 문법 검증
+  VALIDATION_TYPE_SEMANTIC = 2;             // 의미 검증
+  VALIDATION_TYPE_FULL = 3;                 // 전체 검증
+}
+
+// DSL 검증 응답
+message ValidateDSLResponse {
+  bool is_valid = 1;                        // 검증 통과 여부
+  repeated SyntaxError syntax_errors = 2;   // 문법 오류
+  repeated common.ValidationWarning semantic_warnings = 3;  // 의미 경고
+  repeated string suggestions = 4;          // 개선 제안
+}
+
+// 문법 오류
+message SyntaxError {
+  int32 line = 1;                           // 라인 번호
+  int32 column = 2;                         // 컬럼 번호
+  string message = 3;                       // 오류 메시지
+  string expected = 4;                      // 예상 토큰
+  string actual = 5;                        // 실제 토큰
+}
+
+// 자동 완성 요청
+message AutocompleteDSLRequest {
+  string partial_dsl = 1;                   // 부분 DSL 코드
+  int32 cursor_position = 2;                // 커서 위치
+  AutocompleteContext context = 3;          // 컨텍스트
+  common.Metadata metadata = 4;             // 요청 메타데이터
+}
+
+// 자동 완성 컨텍스트
+message AutocompleteContext {
+  string section = 1;                       // 섹션 (예: "DATA", "CONDITIONS")
+  string parent_node = 2;                   // 부모 노드 (해당 시)
+}
+
+// 자동 완성 응답
+message AutocompleteDSLResponse {
+  repeated AutocompleteSuggestion suggestions = 1;  // 제안 목록
+}
+
+// 자동 완성 제안
+message AutocompleteSuggestion {
+  string value = 1;                         // 제안 값
+  string description = 2;                   // 설명
+  SuggestionType type = 3;                  // 제안 타입
+  common.ConfidenceScore confidence = 4;    // 신뢰도
+  string documentation = 5;                 // 문서 링크 (선택)
+}
+
+// 제안 타입
+enum SuggestionType {
+  SUGGESTION_TYPE_UNSPECIFIED = 0;
+  SUGGESTION_TYPE_KEYWORD = 1;              // 키워드
+  SUGGESTION_TYPE_FUNCTION = 2;             // 함수
+  SUGGESTION_TYPE_PARAMETER = 3;            // 파라미터
+  SUGGESTION_TYPE_VARIABLE = 4;             // 변수
+  SUGGESTION_TYPE_SECTION = 5;              // 섹션
+}
+
+// 문법 도움말 요청
+message GetSyntaxHelpRequest {
+  string topic = 1;                         // 주제 (예: "RSI", "CONDITIONS")
+  common.Metadata metadata = 2;             // 요청 메타데이터
+}
+
+// 문법 도움말 응답
+message GetSyntaxHelpResponse {
+  string title = 1;                         // 제목
+  string description = 2;                   // 설명
+  repeated string examples = 3;             // 예제
+  repeated string related_topics = 4;       // 관련 주제
+}

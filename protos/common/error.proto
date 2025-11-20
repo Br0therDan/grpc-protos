@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package genai.common;
+
+import "google/protobuf/struct.proto";
+
+// 에러 심각도
+enum ErrorSeverity {
+  ERROR_SEVERITY_UNSPECIFIED = 0;
+  ERROR_SEVERITY_INFO = 1;      // 정보성
+  ERROR_SEVERITY_WARNING = 2;   // 경고
+  ERROR_SEVERITY_ERROR = 3;     // 에러
+  ERROR_SEVERITY_CRITICAL = 4;  // 치명적
+}
+
+// 에러 상세
+message ErrorDetail {
+  string code = 1;                          // 에러 코드 (예: "INVALID_DSL_SYNTAX")
+  string message = 2;                       // 사용자 친화적 메시지
+  ErrorSeverity severity = 3;               // 심각도
+  map<string, string> metadata = 4;         // 추가 메타데이터 (line, column 등)
+  google.protobuf.Struct context = 5;       // 에러 컨텍스트 (JSON 형태)
+}
+
+// 검증 경고
+message ValidationWarning {
+  string message = 1;                       // 경고 메시지
+  int32 line = 2;                           // 라인 번호 (해당 시)
+  int32 column = 3;                         // 컬럼 번호 (해당 시)
+  ErrorSeverity severity = 4;               // 심각도
+  string suggestion = 5;                    // 해결 제안
+}
+
+// 변환 경고 (IR Converter용)
+message ConversionWarning {
+  string message = 1;                       // 경고 메시지
+  ErrorSeverity severity = 2;               // 심각도
+  bool reversible = 3;                      // 역변환 가능 여부
+}

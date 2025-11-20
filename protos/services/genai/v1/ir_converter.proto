@@ -1,0 +1,95 @@
+syntax = "proto3";
+
+package genai.ir_converter;
+
+import "protos/common/metadata.proto";
+import "protos/common/error.proto";
+import "google/protobuf/struct.proto";
+
+// IR Converter 서비스
+service IRConverterService {
+  // IR 변환 미리보기 (읽기 전용)
+  rpc PreviewConversion(PreviewConversionRequest) returns (PreviewConversionResponse);
+
+  // IR 변환 실행 (Strategy Service 전용)
+  rpc ExecuteConversion(ExecuteConversionRequest) returns (ExecuteConversionResponse);
+
+  // 변환 가능 여부 확인
+  rpc CheckConvertibility(CheckConvertibilityRequest) returns (CheckConvertibilityResponse);
+}
+
+// IR 타입
+enum IRType {
+  IR_TYPE_UNSPECIFIED = 0;
+  IR_TYPE_GRAPH = 1;                        // Graph IR
+  IR_TYPE_RULES = 2;                        // Rules IR
+  IR_TYPE_DSL = 3;                          // DSL IR
+}
+
+// 변환 미리보기 요청
+message PreviewConversionRequest {
+  IRType source_type = 1;                   // 소스 IR 타입
+  IRType target_type = 2;                   // 타겟 IR 타입
+  google.protobuf.Struct source_ir = 3;     // 소스 IR (JSON 형태)
+  ConversionOptions options = 4;            // 변환 옵션
+  common.Metadata metadata = 5;             // 요청 메타데이터
+}
+
+// 변환 옵션
+message ConversionOptions {
+  bool preserve_comments = 1;               // 주석 보존 여부
+  bool optimize = 2;                        // 최적화 여부
+  bool validate_output = 3;                 // 출력 검증 여부 (기본: true)
+}
+
+// 변환 미리보기 응답
+message PreviewConversionResponse {
+  google.protobuf.Struct target_ir = 1;     // 변환된 타겟 IR
+  string preview_code = 2;                  // 미리보기 코드 (DSL인 경우)
+  repeated common.ConversionWarning warnings = 3;  // 변환 경고
+  bool reversible = 4;                      // 역변환 가능 여부
+  ConversionMetadata metadata = 5;          // 변환 메타데이터
+}
+
+// 변환 메타데이터
+message ConversionMetadata {
+  int64 conversion_time_ms = 1;             // 변환 시간 (밀리초)
+  string algorithm_used = 2;                // 사용 알고리즘
+  int32 nodes_count = 3;                    // 노드 수 (Graph IR인 경우)
+  int32 rules_count = 4;                    // 룰 수 (Rules IR인 경우)
+}
+
+// 변환 실행 요청 (Strategy Service 전용)
+message ExecuteConversionRequest {
+  IRType source_type = 1;                   // 소스 IR 타입
+  IRType target_type = 2;                   // 타겟 IR 타입
+  google.protobuf.Struct source_ir = 3;     // 소스 IR
+  ConversionOptions options = 4;            // 변환 옵션
+  common.Metadata metadata = 5;             // 요청 메타데이터
+  string strategy_id = 6;                   // 전략 ID (로깅용)
+}
+
+// 변환 실행 응답
+message ExecuteConversionResponse {
+  google.protobuf.Struct target_ir = 1;     // 변환된 타겟 IR
+  repeated common.ConversionWarning warnings = 2;  // 변환 경고
+  bool success = 3;                         // 성공 여부
+  string error_message = 4;                 // 에러 메시지 (실패 시)
+  ConversionMetadata metadata = 5;          // 변환 메타데이터
+}
+
+// 변환 가능 여부 확인 요청
+message CheckConvertibilityRequest {
+  IRType source_type = 1;                   // 소스 IR 타입
+  IRType target_type = 2;                   // 타겟 IR 타입
+  google.protobuf.Struct source_ir = 3;     // 소스 IR (선택)
+  common.Metadata metadata = 4;             // 요청 메타데이터
+}
+
+// 변환 가능 여부 확인 응답
+message CheckConvertibilityResponse {
+  bool convertible = 1;                     // 변환 가능 여부
+  string reason = 2;                        // 불가 사유 (해당 시)
+  repeated string limitations = 3;          // 제약 사항
+  repeated string required_features = 4;    // 필요 기능
+}

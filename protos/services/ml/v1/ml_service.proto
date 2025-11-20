@@ -1,0 +1,217 @@
+syntax = "proto3";
+
+package ml;
+
+// ML Service - gRPC API
+// Used by Backtest Service for ML prediction and Walk-Forward optimization
+
+service MLService {
+  // Walk-Forward parameter optimization (Server Streaming for progress updates)
+  rpc OptimizeParameters (OptimizeRequest) returns (stream OptimizeProgress);
+
+  // Walk-Forward statistical analysis
+  rpc AnalyzeWalkForward (AnalyzeRequest) returns (AnalyzeResponse);
+
+  // ML signal prediction (single)
+  rpc PredictSignal (MLPredictionRequest) returns (MLSignalInsight);
+
+  // ML signal prediction (batch with streaming)
+  rpc PredictSignalsBatch (BatchMLPredictionRequest) returns (stream MLSignalInsight);
+
+  // Store features in Feature Store
+  rpc StoreFeatures (FeatureStoreRequest) returns (FeatureStoreResponse);
+
+  // Health check
+  rpc HealthCheck (HealthCheckRequest) returns (HealthCheckResponse);
+}
+
+// ============================================================
+// Common Messages
+// ============================================================
+
+message HealthCheckRequest {}
+
+message HealthCheckResponse {
+  string status = 1;  // "ok" or "error"
+  string service = 2;
+  string version = 3;
+}
+
+message Period {
+  string start_date = 1;  // ISO 8601 format
+  string end_date = 2;    // ISO 8601 format
+}
+
+message Constraint {
+  string op = 1;     // "<=", "<", ">=", ">", "=="
+  double value = 2;  // Threshold value
+}
+
+// ============================================================
+// Walk-Forward Optimization
+// ============================================================
+
+message OptimizeRequest {
+  string walk_forward_job_id = 1;
+  int32 window_index = 2;
+  string strategy_version_id = 3;
+  Period train_period = 4;
+  map<string, ParameterValues> parameter_grid = 5;  // e.g., "sma_fast": [5, 10, 20]
+  string optimization_metric = 6;  // e.g., "sharpe_ratio"
+  string metric_objective = 7;     // "maximize" or "minimize"
+  map<string, Constraint> constraints = 8;
+  repeated string symbols = 9;
+  string interval = 10;  // e.g., "1d"
+  string user_id = 11;   // For authorization
+}
+
+message ParameterValues {
+  repeated double values = 1;  // Supports both int and float
+}
+
+message OptimizeProgress {
+  int32 trial_index = 1;
+  int32 total_trials = 2;
+  map<string, double> current_params = 3;
+  double current_score = 4;
+  map<string, double> best_params = 5;
+  double best_score = 6;
+  string status = 7;  // "RUNNING", "COMPLETED", "FAILED"
+  string optimization_run_id = 8;  // Set when COMPLETED
+  map<string, double> is_metrics = 9;  // Final in-sample metrics
+  double execution_time_seconds = 10;
+  repeated TrialResult trials = 11;  // All trial results (sent in final message)
+}
+
+message TrialResult {
+  map<string, double> params = 1;
+  map<string, double> metrics = 2;
+  double score = 3;
+}
+
+// ============================================================
+// Walk-Forward Analysis
+// ============================================================
+
+message AnalyzeRequest {
+  string walk_forward_job_id = 1;
+  repeated WindowResultSummary window_results = 2;
+  string user_id = 3;
+}
+
+message WindowResultSummary {
+  int32 window_index = 1;
+  double is_return = 2;
+  double oos_return = 3;
+  double is_sharpe = 4;
+  double oos_sharpe = 5;
+}
+
+message AnalyzeResponse {
+  string analysis_id = 1;
+  double efficiency_ratio = 2;
+  double stability_score = 3;
+  PValues p_values = 4;
+  string interpretation = 5;
+  string recommendation = 6;
+  double created_at = 7;  // Unix timestamp
+}
+
+message PValues {
+  double is_vs_oos_return = 1;
+  double is_vs_oos_sharpe = 2;
+  double oos_vs_zero = 3;
+}
+
+// ============================================================
+// ML Prediction
+// ============================================================
+
+message MLPredictionRequest {
+  FeatureVector features = 1;
+  string model_id = 2;  // Default: "default"
+  string user_id = 3;
+}
+
+message BatchMLPredictionRequest {
+  repeated FeatureVector features_list = 1;
+  string model_id = 2;
+  string user_id = 3;
+}
+
+message FeatureVector {
+  // Price Features (5)
+  optional double returns_1d = 1;
+  optional double returns_5d = 2;
+  optional double returns_20d = 3;
+  optional double volatility_20d = 4;
+  optional double volume_ratio = 5;
+
+  // Technical Indicators (13)
+  optional double sma_5 = 6;
+  optional double sma_20 = 7;
+  optional double sma_50 = 8;
+  optional double sma_200 = 9;
+  optional double ema_12 = 10;
+  optional double ema_26 = 11;
+  optional double rsi_14 = 12;
+  optional double macd = 13;
+  optional double macd_signal = 14;
+  optional double macd_histogram = 15;
+  optional double bb_upper = 16;
+  optional double bb_middle = 17;
+  optional double bb_lower = 18;
+
+  // Statistical Features (3)
+  optional double skewness = 19;
+  optional double kurtosis = 20;
+  optional double autocorr = 21;
+
+  // Portfolio Context (4)
+  optional double cash_ratio = 22;
+  optional double position_ratio = 23;
+  optional double pnl = 24;
+  optional double drawdown = 25;
+
+  // Regime Detection (2)
+  optional string regime_type = 26;
+  optional double trend_strength = 27;
+}
+
+message MLSignalInsight {
+  string symbol = 1;
+  string as_of = 2;  // ISO 8601 timestamp
+  int32 lookback_days = 3;
+  double probability = 4;
+  double confidence = 5;
+  string recommendation = 6;  // "BUY", "SELL", "HOLD"
+  repeated FeatureContribution feature_contributions = 7;
+  repeated string top_signals = 8;
+}
+
+message FeatureContribution {
+  string feature = 1;
+  double value = 2;
+  double weight = 3;
+  double impact = 4;
+  string direction = 5;
+}
+
+// ============================================================
+// Feature Store
+// ============================================================
+
+message FeatureStoreRequest {
+  string symbol = 1;
+  string interval = 2;
+  string timestamp = 3;  // ISO 8601
+  FeatureVector features = 4;
+  map<string, string> metadata = 5;  // Optional metadata
+  string user_id = 6;
+}
+
+message FeatureStoreResponse {
+  string feature_id = 1;
+  string stored_at = 2;  // ISO 8601
+  double quality_score = 3;
+}

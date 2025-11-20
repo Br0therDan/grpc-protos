@@ -1,0 +1,82 @@
+syntax = "proto3";
+
+package genai.strategy_builder;
+
+import "protos/common/metadata.proto";
+import "protos/common/error.proto";
+import "google/protobuf/struct.proto";
+
+// Strategy Builder 서비스
+service StrategyBuilderService {
+  // 자연어에서 전략 생성
+  rpc GenerateStrategy(GenerateStrategyRequest) returns (GenerateStrategyResponse);
+
+  // 제안서 검증 (STRUCT/STATIC 사전 검증)
+  rpc ValidateProposal(ValidateProposalRequest) returns (ValidateProposalResponse);
+
+  // 템플릿 기반 전략 커스터마이징
+  rpc CustomizeTemplate(CustomizeTemplateRequest) returns (CustomizeTemplateResponse);
+}
+
+// 전략 생성 요청
+message GenerateStrategyRequest {
+  string natural_language = 1;              // 자연어 의도 (필수)
+  StrategyContext context = 2;              // 컨텍스트 정보 (선택)
+  string template_id = 3;                   // 기존 템플릿 ID (선택)
+  bool use_cache = 4;                       // 캐시 사용 여부 (기본: true)
+  common.Metadata metadata = 5;             // 요청 메타데이터
+}
+
+// 전략 컨텍스트
+message StrategyContext {
+  repeated string universe = 1;             // 종목 유니버스 (예: ["AAPL", "MSFT"])
+  string market_type = 2;                   // 시장 타입 (예: "us_stocks", "crypto")
+  string interval = 3;                      // 시간 간격 (예: "1d", "15m")
+  string risk_level = 4;                    // 리스크 레벨 (예: "low", "medium", "high")
+}
+
+// 전략 생성 응답
+message GenerateStrategyResponse {
+  google.protobuf.Struct strategy_ir = 1;   // StrategyIR (JSON 형태)
+  ValidationPreview validation_preview = 2; // 사전 검증 결과
+  string explanation = 3;                   // 전략 설명
+  common.ConfidenceScore confidence = 4;    // 신뢰도
+  string proposal_id = 5;                   // 제안서 ID (승인용)
+  bool approval_required = 6;               // 승인 필요 여부
+}
+
+// 검증 미리보기
+message ValidationPreview {
+  repeated common.ValidationWarning struct_warnings = 1;   // STRUCT 경고
+  repeated common.ValidationWarning static_warnings = 2;   // STATIC 경고
+  bool is_valid = 3;                                       // 검증 통과 여부
+}
+
+// 제안서 검증 요청
+message ValidateProposalRequest {
+  string proposal_id = 1;                   // 제안서 ID
+  common.Metadata metadata = 2;             // 요청 메타데이터
+}
+
+// 제안서 검증 응답
+message ValidateProposalResponse {
+  bool is_valid = 1;                        // 검증 통과 여부
+  repeated common.ValidationWarning warnings = 2;  // 경고 목록
+  google.protobuf.Struct strategy_ir = 3;   // StrategyIR (재검증 결과)
+}
+
+// 템플릿 커스터마이징 요청
+message CustomizeTemplateRequest {
+  string template_id = 1;                   // 템플릿 ID
+  string customization_intent = 2;          // 커스터마이징 의도 (예: "암호화폐 시장에 최적화")
+  StrategyContext context = 3;              // 컨텍스트 정보
+  common.Metadata metadata = 4;             // 요청 메타데이터
+}
+
+// 템플릿 커스터마이징 응답
+message CustomizeTemplateResponse {
+  map<string, google.protobuf.Value> recommended_parameters = 1;  // 권장 파라미터
+  string rationale = 2;                                           // 근거 설명
+  common.ConfidenceScore confidence = 3;                          // 신뢰도
+  google.protobuf.Struct strategy_ir = 4;                         // 커스터마이징된 StrategyIR
+}

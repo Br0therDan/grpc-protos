@@ -1,0 +1,183 @@
+syntax = "proto3";
+
+package indicator;
+
+// IndicatorService provides metadata about technical indicators
+service IndicatorService {
+  // Get metadata for a single indicator
+  rpc GetIndicatorMetadata(GetIndicatorMetadataRequest) returns (IndicatorMetadataResponse);
+
+  // Get metadata for multiple indicators (batch)
+  rpc BatchGetIndicatorMetadata(BatchGetIndicatorMetadataRequest) returns (BatchGetIndicatorMetadataResponse);
+
+  // Calculate a single indicator
+  rpc CalculateIndicator(CalculateIndicatorRequest) returns (CalculateIndicatorResponse);
+
+  // Calculate multiple indicators (batch)
+  rpc BatchCalculateIndicators(BatchCalculateIndicatorsRequest) returns (BatchCalculateIndicatorsResponse);
+
+  // Health check endpoint
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+}
+
+// Request to get metadata for a single indicator
+message GetIndicatorMetadataRequest {
+  string name = 1;      // Indicator name (e.g., "sma", "rsi")
+  string user_id = 2;   // Optional: User ID for auth/logging
+}
+
+// Request to get metadata for multiple indicators
+message BatchGetIndicatorMetadataRequest {
+  repeated string names = 1;  // List of indicator names
+  string user_id = 2;          // Optional: User ID for auth/logging
+}
+
+// Response containing metadata for multiple indicators
+message BatchGetIndicatorMetadataResponse {
+  repeated IndicatorMetadataResponse indicators = 1;  // Successfully found indicators
+  repeated string not_found = 2;                       // Indicator names not found
+}
+
+// Parameter definition for an indicator
+message Parameter {
+  string name = 1;
+  string type = 2;  // "int", "float", "str", "bool"
+  string description = 3;
+  bool required = 4;
+  string default_value = 5;  // String representation of default value
+
+  // Parameter constraints
+  ParameterConstraints constraints = 6;
+
+  // Enum values (for type="str" with limited choices)
+  repeated string enum_values = 7;
+}
+
+// Parameter constraints
+message ParameterConstraints {
+  optional double min = 1;        // Minimum value (numeric types)
+  optional double max = 2;        // Maximum value (numeric types)
+  optional int32 min_length = 3;  // Minimum length (string types)
+  optional int32 max_length = 4;  // Maximum length (string types)
+  optional string pattern = 5;    // Regex pattern (string types)
+}
+
+// Output column definition
+message OutputColumn {
+  string name = 1;
+  string type = 2;        // "float", "int", "bool"
+  string description = 3;
+}
+
+// Dependency on another indicator
+message Dependency {
+  string indicator_name = 1;
+  string reason = 2;
+  bool is_optional = 3;
+}
+
+// Complete metadata for an indicator
+message IndicatorMetadataResponse {
+  string name = 1;
+  string display_name = 2;
+  string description = 3;
+  string category = 4;  // "trend", "momentum", "volatility", "volume"
+  repeated string tags = 5;
+
+  // Parameters
+  repeated Parameter parameters = 6;
+
+  // Outputs
+  repeated OutputColumn outputs = 7;
+
+  // Dependencies
+  repeated Dependency dependencies = 8;
+
+  // Calculation requirements
+  int32 min_lookback = 9;
+  bool is_overlay = 10;  // Whether indicator overlays on price chart
+
+  // Metadata
+  string version = 11;
+  string created_at = 12;
+  string updated_at = 13;
+}
+
+// ============================================================================
+// Calculation Messages
+// ============================================================================
+
+// Request to calculate a single indicator
+message CalculateIndicatorRequest {
+  string indicator_name = 1;      // Indicator name (e.g., "SMA", "RSI")
+  map<string, string> params = 2; // Parameters as key-value pairs (all values as strings)
+  string symbol = 3;              // Symbol (e.g., "AAPL", "BTCUSDT")
+  string interval = 4;            // Time interval (e.g., "1d", "1h", "5m")
+  string start_date = 5;          // Start date (ISO 8601 format)
+  string end_date = 6;            // End date (ISO 8601 format)
+  string user_id = 7;             // Optional: User ID for auth/logging
+}
+
+// Response for single indicator calculation
+message CalculateIndicatorResponse {
+  string indicator_name = 1;
+  map<string, string> params = 2;
+  string result_type = 3;         // "series", "multi_series", "signal"
+
+  // Single output (for result_type = "series")
+  repeated double values = 4;
+
+  // Multi output (for result_type = "multi_series", e.g., BBANDS)
+  map<string, DoubleArray> multi_values = 5;
+
+  // Signal output (for result_type = "signal")
+  repeated string signals = 6;
+
+  repeated string timestamps = 7;  // ISO 8601 timestamps
+  string symbol = 8;
+  string interval = 9;
+  bool cached = 10;                // Whether result was from cache
+}
+
+// Helper message for arrays of doubles
+message DoubleArray {
+  repeated double values = 1;
+}
+
+// Indicator specification for batch calculation
+message IndicatorSpec {
+  string name = 1;                 // Indicator name
+  map<string, string> params = 2;  // Parameters
+}
+
+// Request to calculate multiple indicators (batch)
+message BatchCalculateIndicatorsRequest {
+  string symbol = 1;
+  string interval = 2;
+  string start_date = 3;
+  string end_date = 4;
+  repeated IndicatorSpec indicators = 5;  // List of indicators to calculate
+  string user_id = 6;                     // Optional: User ID for auth/logging
+}
+
+// Response for batch indicator calculation
+message BatchCalculateIndicatorsResponse {
+  repeated CalculateIndicatorResponse results = 1;  // Individual calculation results
+  repeated string timestamps = 2;                    // Common timestamps for all indicators
+}
+
+// ============================================================================
+// Health Check Messages
+// ============================================================================
+
+// Health check request
+message HealthCheckRequest {}
+
+// Health check response
+message HealthCheckResponse {
+  string status = 1;           // "healthy", "degraded", "unhealthy"
+  string service = 2;          // Service name
+  string version = 3;          // Service version
+  int32 uptime_seconds = 4;    // Server uptime
+  int32 cache_size = 5;        // Number of indicators in cache
+}
