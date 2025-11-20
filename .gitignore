@@ -1,5 +1,4 @@
-# Generated code
-generated/
+# Build artifacts (generated code is committed)
 *.pyc
 __pycache__/
 *.egg-info/
@@ -14,9 +13,6 @@ build/
 
 # OS
 .DS_Store
-
-# Buf
-buf.lock
 
 # Python
 venv/

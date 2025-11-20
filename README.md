@@ -11,16 +11,14 @@ brew install bufbuild/buf/buf
 buf --version
 ```
 
-### Generate Python Stubs
+### Install Package from GitHub
 
 ```bash
-./scripts/generate-python.sh
-```
+# Latest from main branch
+pip install git+https://github.com/Br0therDan/grpc-protos.git@main
 
-### Validate Breaking Changes
-
-```bash
-./scripts/validate-breaking.sh
+# Specific tagged version (recommended)
+pip install git+https://github.com/Br0therDan/grpc-protos.git@v1.0.0
 ```
 
 ## Repository Structure
@@ -44,10 +42,14 @@ grpc-protos/
 
 ## Package Usage
 
-### Install from PyPI
+### Install from GitHub
 
 ```bash
-pip install mysingle-protos
+# In your service's requirements.txt
+mysingle-protos @ git+https://github.com/Br0therDan/grpc-protos.git@v1.0.0
+
+# Or install directly
+pip install git+https://github.com/Br0therDan/grpc-protos.git@v1.0.0
 ```
 
 ### Import in Services
@@ -103,22 +105,32 @@ from mysingle_protos.services.market_data.v1 import market_data_service_pb2_grpc
 ### Publish New Version
 
 ```bash
-# 1. Update version in pyproject.toml
-vim generated/python/pyproject.toml
+# 1. Update version in pyproject.toml and generate code
+./scripts/publish-release.sh 1.0.0
 
-# 2. Tag release
-git tag -a v1.0.0 -m "Release v1.0.0"
-git push origin v1.0.0
+# This will:
+# - Update version in pyproject.toml
+# - Generate Python stubs
+# - Commit changes
+# - Create and push git tag v1.0.0
+```
 
-# 3. GitHub Actions auto-publishes to PyPI
+### Update Services
+
+```bash
+# Update requirements.txt or pyproject.toml
+mysingle-protos @ git+https://github.com/Br0therDan/grpc-protos.git@v1.0.0
+
+# Reinstall
+pip install --upgrade --force-reinstall -r requirements.txt
 ```
 
 ## CI/CD
 
 GitHub Actions workflows:
 - **validate-protos.yml**: Lint and breaking change detection on PRs
-- **generate-clients.yml**: Auto-generate code on main branch
-- **publish-package.yml**: Publish to PyPI on tag push
+- **auto-generate.yml**: Auto-generate and commit code on main branch
+- No PyPI publishing needed - services install directly from GitHub tags
 
 ## Documentation
 
@@ -133,11 +145,13 @@ See [GRPC_PROTO_REPOSITORY_DESIGN.md](../docs/Inter-service-communications/GRPC_
 
 ## Next Steps
 
-1. Buf mod update (fetch google dependencies)
-2. Fix lint warnings for market_data_service.proto
-3. Generate initial Python package (v0.1.0-alpha)
-4. Migrate remaining proto files
-5. Set up GitHub Actions CI/CD
+1. ✅ Buf configuration complete
+2. ✅ market_data_service.proto migrated
+3. ⏳ Migrate remaining proto files
+4. ⏳ Fix lint warnings
+5. ⏳ Generate initial Python package (v0.1.0)
+6. ⏳ Set up GitHub Actions CI/CD
+7. ⏳ Create first GitHub release tag
 
 ---
 

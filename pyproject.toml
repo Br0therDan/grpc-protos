@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mysingle-protos"
+version = "0.1.0"
+description = "MySingle Quant gRPC Protocol Buffers"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "MySingle Quant Team", email = "dev@mysingle.io" }]
+keywords = ["grpc", "protobuf", "mysingle", "quant", "trading"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = ["grpcio>=1.60.0", "protobuf>=4.25.0"]
+
+[project.urls]
+Homepage = "https://github.com/Br0therDan/grpc-protos"
+Documentation = "https://github.com/Br0therDan/grpc-protos/blob/main/README.md"
+Repository = "https://github.com/Br0therDan/grpc-protos"
+Issues = "https://github.com/Br0therDan/grpc-protos/issues"
+
+[tool.setuptools]
+package-dir = { "" = "generated" }
+
+[tool.setuptools.packages.find]
+where = ["generated"]
+include = ["mysingle_protos*"]
+exclude = ["tests*"]
