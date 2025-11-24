@@ -94,7 +94,7 @@ protobuf>=4.25.0
 **pyproject.toml:**
 ```toml
 dependencies = [
-    "mysingle-protos @ git+https://github.com/Br0therDan/grpc-protos.git@v0.2.0",
+    "mysingle-protos @ git+https://github.com/Br0therDan/grpc-protos.git@v0.3.0",
     "grpcio>=1.60.0",
     "protobuf>=4.25.0",
 ]

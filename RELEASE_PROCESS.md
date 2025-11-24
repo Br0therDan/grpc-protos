@@ -164,7 +164,7 @@ mysingle-protos @ git+https://github.com/Br0therDan/grpc-protos.git@v0.2.0
 
 ```toml
 dependencies = [
-    "mysingle-protos @ git+https://github.com/Br0therDan/grpc-protos.git@v0.2.0",
+    "mysingle-protos @ git+https://github.com/Br0therDan/grpc-protos.git@v0.3.0",
 ]
 ```
 
