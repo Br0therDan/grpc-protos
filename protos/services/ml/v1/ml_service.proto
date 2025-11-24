@@ -7,25 +7,25 @@ package ml;
 
 service MLService {
   // Walk-Forward parameter optimization (Server Streaming for progress updates)
-  rpc OptimizeParameters (OptimizeRequest) returns (stream OptimizeProgress);
+  rpc OptimizeParameters(OptimizeRequest) returns (stream OptimizeProgress);
 
   // Walk-Forward statistical analysis
-  rpc AnalyzeWalkForward (AnalyzeRequest) returns (AnalyzeResponse);
+  rpc AnalyzeWalkForward(AnalyzeRequest) returns (AnalyzeResponse);
 
   // ML signal prediction (single)
-  rpc PredictSignal (MLPredictionRequest) returns (MLSignalInsight);
+  rpc PredictSignal(MLPredictionRequest) returns (MLSignalInsight);
 
   // ML signal prediction (batch with streaming)
-  rpc PredictSignalsBatch (BatchMLPredictionRequest) returns (stream MLSignalInsight);
+  rpc PredictSignalsBatch(BatchMLPredictionRequest) returns (stream MLSignalInsight);
 
   // Store features in Feature Store
-  rpc StoreFeatures (FeatureStoreRequest) returns (FeatureStoreResponse);
+  rpc StoreFeatures(FeatureStoreRequest) returns (FeatureStoreResponse);
 
   // Health check
-  rpc HealthCheck (HealthCheckRequest) returns (HealthCheckResponse);
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
 
   // ML Backtest Performance Analysis (Backtest Service → ML Service)
-  rpc AnalyzeMLBacktestPerformance (AnalyzeMLBacktestPerformanceRequest) returns (AnalyzeMLBacktestPerformanceResponse);
+  rpc AnalyzeMLBacktestPerformance(AnalyzeMLBacktestPerformanceRequest) returns (AnalyzeMLBacktestPerformanceResponse);
 }
 
 // ============================================================
@@ -35,19 +35,19 @@ service MLService {
 message HealthCheckRequest {}
 
 message HealthCheckResponse {
-  string status = 1;  // "ok" or "error"
+  string status = 1; // "ok" or "error"
   string service = 2;
   string version = 3;
 }
 
 message Period {
-  string start_date = 1;  // ISO 8601 format
-  string end_date = 2;    // ISO 8601 format
+  string start_date = 1; // ISO 8601 format
+  string end_date = 2; // ISO 8601 format
 }
 
 message Constraint {
-  string op = 1;     // "<=", "<", ">=", ">", "=="
-  double value = 2;  // Threshold value
+  string op = 1; // "<=", "<", ">=", ">", "=="
+  double value = 2; // Threshold value
 }
 
 // ============================================================
@@ -59,17 +59,17 @@ message OptimizeRequest {
   int32 window_index = 2;
   string strategy_version_id = 3;
   Period train_period = 4;
-  map<string, ParameterValues> parameter_grid = 5;  // e.g., "sma_fast": [5, 10, 20]
-  string optimization_metric = 6;  // e.g., "sharpe_ratio"
-  string metric_objective = 7;     // "maximize" or "minimize"
+  map<string, ParameterValues> parameter_grid = 5; // e.g., "sma_fast": [5, 10, 20]
+  string optimization_metric = 6; // e.g., "sharpe_ratio"
+  string metric_objective = 7; // "maximize" or "minimize"
   map<string, Constraint> constraints = 8;
   repeated string symbols = 9;
-  string interval = 10;  // e.g., "1d"
-  string user_id = 11;   // For authorization
+  string interval = 10; // e.g., "1d"
+  string user_id = 11; // For authorization
 }
 
 message ParameterValues {
-  repeated double values = 1;  // Supports both int and float
+  repeated double values = 1; // Supports both int and float
 }
 
 message OptimizeProgress {
@@ -79,11 +79,11 @@ message OptimizeProgress {
   double current_score = 4;
   map<string, double> best_params = 5;
   double best_score = 6;
-  string status = 7;  // "RUNNING", "COMPLETED", "FAILED"
-  string optimization_run_id = 8;  // Set when COMPLETED
-  map<string, double> is_metrics = 9;  // Final in-sample metrics
+  string status = 7; // "RUNNING", "COMPLETED", "FAILED"
+  string optimization_run_id = 8; // Set when COMPLETED
+  map<string, double> is_metrics = 9; // Final in-sample metrics
   double execution_time_seconds = 10;
-  repeated TrialResult trials = 11;  // All trial results (sent in final message)
+  repeated TrialResult trials = 11; // All trial results (sent in final message)
 }
 
 message TrialResult {
@@ -117,7 +117,7 @@ message AnalyzeResponse {
   PValues p_values = 4;
   string interpretation = 5;
   string recommendation = 6;
-  double created_at = 7;  // Unix timestamp
+  double created_at = 7; // Unix timestamp
 }
 
 message PValues {
@@ -132,7 +132,7 @@ message PValues {
 
 message MLPredictionRequest {
   FeatureVector features = 1;
-  string model_id = 2;  // Default: "default"
+  string model_id = 2; // Default: "default"
   string user_id = 3;
 }
 
@@ -183,11 +183,11 @@ message FeatureVector {
 
 message MLSignalInsight {
   string symbol = 1;
-  string as_of = 2;  // ISO 8601 timestamp
+  string as_of = 2; // ISO 8601 timestamp
   int32 lookback_days = 3;
   double probability = 4;
   double confidence = 5;
-  string recommendation = 6;  // "BUY", "SELL", "HOLD"
+  string recommendation = 6; // "BUY", "SELL", "HOLD"
   repeated FeatureContribution feature_contributions = 7;
   repeated string top_signals = 8;
 }
@@ -207,15 +207,15 @@ message FeatureContribution {
 message FeatureStoreRequest {
   string symbol = 1;
   string interval = 2;
-  string timestamp = 3;  // ISO 8601
+  string timestamp = 3; // ISO 8601
   FeatureVector features = 4;
-  map<string, string> metadata = 5;  // Optional metadata
+  map<string, string> metadata = 5; // Optional metadata
   string user_id = 6;
 }
 
 message FeatureStoreResponse {
   string feature_id = 1;
-  string stored_at = 2;  // ISO 8601
+  string stored_at = 2; // ISO 8601
   double quality_score = 3;
 }
 
@@ -224,29 +224,29 @@ message FeatureStoreResponse {
 // ============================================================
 
 message AnalyzeMLBacktestPerformanceRequest {
-  string job_id = 1;                                // Backtest job ID
-  string model_name = 2;                            // Model name
-  string model_version = 3;                         // Model version
-  repeated MLPrediction predictions = 4;            // ML prediction results
-  repeated ActualOutcome actual_outcomes = 5;       // Actual outcomes
-  map<string, float> feature_importances = 6;       // Feature importances (optional)
-  string user_id = 7;                               // User ID
+  string job_id = 1; // Backtest job ID
+  string model_name = 2; // Model name
+  string model_version = 3; // Model version
+  repeated MLPrediction predictions = 4; // ML prediction results
+  repeated ActualOutcome actual_outcomes = 5; // Actual outcomes
+  map<string, float> feature_importances = 6; // Feature importances (optional)
+  string user_id = 7; // User ID
 }
 
 message MLPrediction {
-  string timestamp = 1;   // ISO 8601 format (e.g., "2025-01-01T09:30:00Z")
-  string prediction = 2;  // "BUY", "SELL", "HOLD"
-  float confidence = 3;   // 0.0 ~ 1.0
-  string regime = 4;      // "bull", "bear", "sideways" (optional)
+  string timestamp = 1; // ISO 8601 format (e.g., "2025-01-01T09:30:00Z")
+  string prediction = 2; // "BUY", "SELL", "HOLD"
+  float confidence = 3; // 0.0 ~ 1.0
+  string regime = 4; // "bull", "bear", "sideways" (optional)
 }
 
 message ActualOutcome {
-  string timestamp = 1;  // ISO 8601 format
-  string actual = 2;     // "BUY", "SELL", "HOLD"
+  string timestamp = 1; // ISO 8601 format
+  string actual = 2; // "BUY", "SELL", "HOLD"
 }
 
 message AnalyzeMLBacktestPerformanceResponse {
-  string performance_id = 1;  // Generated Performance Document ID
-  bool success = 2;           // Success status
-  string message = 3;         // Message (error details if failed)
+  string performance_id = 1; // Generated Performance Document ID
+  bool success = 2; // Success status
+  string message = 3; // Message (error details if failed)
 }

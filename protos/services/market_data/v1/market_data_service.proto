@@ -14,7 +14,7 @@ package market_data;
 
 // Standard OHLCV bar structure used across all asset classes
 message OHLCVBar {
-  string timestamp = 1;            // ISO 8601 format timestamp
+  string timestamp = 1; // ISO 8601 format timestamp
   double open = 2;
   double high = 3;
   double low = 4;
@@ -39,20 +39,20 @@ message Pagination {
 
 message GetDailyOHLCVRequest {
   string symbol = 1;
-  optional string start_date = 2;     // YYYY-MM-DD
-  optional string end_date = 3;       // YYYY-MM-DD
-  optional string outputsize = 4;     // "compact" or "full"
-  optional bool adjusted = 5;         // Include adjusted close
+  optional string start_date = 2; // YYYY-MM-DD
+  optional string end_date = 3; // YYYY-MM-DD
+  optional string outputsize = 4; // "compact" or "full"
+  optional bool adjusted = 5; // Include adjusted close
 }
 
 message GetIntradayOHLCVRequest {
   string symbol = 1;
-  optional string interval = 2;       // "1min", "5min", "15min", "30min", "60min"
+  optional string interval = 2; // "1min", "5min", "15min", "30min", "60min"
   optional string start_date = 3;
   optional string end_date = 4;
   optional string outputsize = 5;
   optional bool adjusted = 6;
-  optional string month = 7;          // YYYY-MM format for specific month
+  optional string month = 7; // YYYY-MM format for specific month
 }
 
 message GetWeeklyOHLCVRequest {
@@ -71,11 +71,11 @@ message GetMonthlyOHLCVRequest {
 
 message OHLCVResponse {
   string symbol = 1;
-  string interval = 2;                // "1d", "1w", "1mo", "5min", etc.
+  string interval = 2; // "1d", "1w", "1mo", "5min", etc.
   repeated OHLCVBar bars = 3;
   int32 count = 4;
   bool cached = 5;
-  string source = 6;                  // "alpha_vantage", "yahoo_finance", etc.
+  string source = 6; // "alpha_vantage", "yahoo_finance", etc.
   optional string cache_timestamp = 7;
 }
 
@@ -212,7 +212,7 @@ message ListForexPairsResponse {
 
 message GetCryptoDailyRequest {
   string symbol = 1;
-  string market = 2;                  // e.g., "USD"
+  string market = 2; // e.g., "USD"
   optional string start_date = 3;
   optional string end_date = 4;
 }
@@ -506,7 +506,7 @@ message EarningsResponse {
 
 message GetEarningsCalendarRequest {
   optional string symbol = 1;
-  optional string horizon = 2;        // "3month", "6month", "12month"
+  optional string horizon = 2; // "3month", "6month", "12month"
 }
 
 message EarningsCalendarEvent {
@@ -616,12 +616,12 @@ message SplitsResponse {
 // ============================================================================
 
 message GetNewsRequest {
-  optional string tickers = 1;         // Comma-separated tickers
-  optional string topics = 2;          // Comma-separated topics
-  optional string time_from = 3;       // YYYYMMDDTHHMM
-  optional string time_to = 4;         // YYYYMMDDTHHMM
-  optional string sort = 5;            // "LATEST", "EARLIEST", "RELEVANCE"
-  optional int32 limit = 6;            // Max 1000
+  optional string tickers = 1; // Comma-separated tickers
+  optional string topics = 2; // Comma-separated topics
+  optional string time_from = 3; // YYYYMMDDTHHMM
+  optional string time_to = 4; // YYYYMMDDTHHMM
+  optional string sort = 5; // "LATEST", "EARLIEST", "RELEVANCE"
+  optional int32 limit = 6; // Max 1000
 }
 
 message NewsArticle {
@@ -748,7 +748,7 @@ message EarningsTranscriptResponse {
 // ============================================================================
 
 message GetGDPRequest {
-  optional string interval = 1;        // "annual", "quarterly"
+  optional string interval = 1; // "annual", "quarterly"
 }
 
 message EconomicDataPoint {
@@ -775,16 +775,16 @@ message GetInflationRequest {
 }
 
 message GetCPIRequest {
-  optional string interval = 1;        // "monthly", "semiannual"
+  optional string interval = 1; // "monthly", "semiannual"
 }
 
 message GetFederalFundsRateRequest {
-  optional string interval = 1;        // "daily", "weekly", "monthly"
+  optional string interval = 1; // "daily", "weekly", "monthly"
 }
 
 message GetTreasuryYieldRequest {
-  optional string interval = 1;        // "daily", "weekly", "monthly"
-  optional string maturity = 2;        // "3month", "2year", "5year", "7year", "10year", "30year"
+  optional string interval = 1; // "daily", "weekly", "monthly"
+  optional string maturity = 2; // "3month", "2year", "5year", "7year", "10year", "30year"
 }
 
 message GetRetailSalesRequest {
@@ -808,8 +808,8 @@ message GetNonfarmPayrollRequest {
 // ============================================================================
 
 message GetCommodityRequest {
-  string commodity = 1;                // "wti", "brent", "natural_gas", "copper", etc.
-  optional string interval = 2;        // "daily", "weekly", "monthly"
+  string commodity = 1; // "wti", "brent", "natural_gas", "copper", etc.
+  optional string interval = 2; // "daily", "weekly", "monthly"
 }
 
 message CommodityResponse {
@@ -839,7 +839,7 @@ message AllCommoditiesResponse {
 
 message GetOptionsChainRequest {
   string symbol = 1;
-  optional string date = 2;            // YYYY-MM-DD or "latest"
+  optional string date = 2; // YYYY-MM-DD or "latest"
 }
 
 message OptionContract {
@@ -847,7 +847,7 @@ message OptionContract {
   string symbol = 2;
   string expiration = 3;
   double strike = 4;
-  string type = 5;                     // "call" or "put"
+  string type = 5; // "call" or "put"
   optional double last = 6;
   optional double mark = 7;
   optional double bid = 8;
@@ -906,7 +906,7 @@ message HealthCheckRequest {
 }
 
 message HealthCheckResponse {
-  string status = 1;                   // "healthy", "degraded", "unhealthy"
+  string status = 1; // "healthy", "degraded", "unhealthy"
   string service = 2;
   string version = 3;
   int64 uptime_seconds = 4;
