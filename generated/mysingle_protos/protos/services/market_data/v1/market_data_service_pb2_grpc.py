@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-from mysingle_protos.protos.services.market_data.v1 import market_data_service_pb2 as protos_dot_services_dot_market__data_dot_v1_dot_market__data__service__pb2
+from protos.services.market_data.v1 import market_data_service_pb2 as protos_dot_services_dot_market__data_dot_v1_dot_market__data__service__pb2
 
 
 class MarketDataServiceStub(object):

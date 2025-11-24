@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-from mysingle_protos.protos.services.ml.v1 import ml_service_pb2 as protos_dot_services_dot_ml_dot_v1_dot_ml__service__pb2
+from protos.services.ml.v1 import ml_service_pb2 as protos_dot_services_dot_ml_dot_v1_dot_ml__service__pb2
 
 
 class MLServiceStub(object):
@@ -46,6 +46,11 @@ class MLServiceStub(object):
                 '/ml.MLService/HealthCheck',
                 request_serializer=protos_dot_services_dot_ml_dot_v1_dot_ml__service__pb2.HealthCheckRequest.SerializeToString,
                 response_deserializer=protos_dot_services_dot_ml_dot_v1_dot_ml__service__pb2.HealthCheckResponse.FromString,
+                _registered_method=True)
+        self.AnalyzeMLBacktestPerformance = channel.unary_unary(
+                '/ml.MLService/AnalyzeMLBacktestPerformance',
+                request_serializer=protos_dot_services_dot_ml_dot_v1_dot_ml__service__pb2.AnalyzeMLBacktestPerformanceRequest.SerializeToString,
+                response_deserializer=protos_dot_services_dot_ml_dot_v1_dot_ml__service__pb2.AnalyzeMLBacktestPerformanceResponse.FromString,
                 _registered_method=True)
 
 
@@ -97,6 +102,13 @@ class MLServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def AnalyzeMLBacktestPerformance(self, request, context):
+        """ML Backtest Performance Analysis (Backtest Service → ML Service)
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_MLServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -129,6 +141,11 @@ def add_MLServiceServicer_to_server(servicer, server):
                     servicer.HealthCheck,
                     request_deserializer=protos_dot_services_dot_ml_dot_v1_dot_ml__service__pb2.HealthCheckRequest.FromString,
                     response_serializer=protos_dot_services_dot_ml_dot_v1_dot_ml__service__pb2.HealthCheckResponse.SerializeToString,
+            ),
+            'AnalyzeMLBacktestPerformance': grpc.unary_unary_rpc_method_handler(
+                    servicer.AnalyzeMLBacktestPerformance,
+                    request_deserializer=protos_dot_services_dot_ml_dot_v1_dot_ml__service__pb2.AnalyzeMLBacktestPerformanceRequest.FromString,
+                    response_serializer=protos_dot_services_dot_ml_dot_v1_dot_ml__service__pb2.AnalyzeMLBacktestPerformanceResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -296,6 +313,33 @@ class MLService(object):
             '/ml.MLService/HealthCheck',
             protos_dot_services_dot_ml_dot_v1_dot_ml__service__pb2.HealthCheckRequest.SerializeToString,
             protos_dot_services_dot_ml_dot_v1_dot_ml__service__pb2.HealthCheckResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def AnalyzeMLBacktestPerformance(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/ml.MLService/AnalyzeMLBacktestPerformance',
+            protos_dot_services_dot_ml_dot_v1_dot_ml__service__pb2.AnalyzeMLBacktestPerformanceRequest.SerializeToString,
+            protos_dot_services_dot_ml_dot_v1_dot_ml__service__pb2.AnalyzeMLBacktestPerformanceResponse.FromString,
             options,
             channel_credentials,
             insecure,

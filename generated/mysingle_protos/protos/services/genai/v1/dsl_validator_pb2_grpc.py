@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-from mysingle_protos.protos.services.genai.v1 import dsl_validator_pb2 as protos_dot_services_dot_genai_dot_v1_dot_dsl__validator__pb2
+from protos.services.genai.v1 import dsl_validator_pb2 as protos_dot_services_dot_genai_dot_v1_dot_dsl__validator__pb2
 
 
 class DSLValidatorServiceStub(object):
