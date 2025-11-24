@@ -23,6 +23,9 @@ service MLService {
 
   // Health check
   rpc HealthCheck (HealthCheckRequest) returns (HealthCheckResponse);
+
+  // ML Backtest Performance Analysis (Backtest Service → ML Service)
+  rpc AnalyzeMLBacktestPerformance (AnalyzeMLBacktestPerformanceRequest) returns (AnalyzeMLBacktestPerformanceResponse);
 }
 
 // ============================================================
@@ -214,4 +217,36 @@ message FeatureStoreResponse {
   string feature_id = 1;
   string stored_at = 2;  // ISO 8601
   double quality_score = 3;
+}
+
+// ============================================================
+// ML Backtest Performance Analysis
+// ============================================================
+
+message AnalyzeMLBacktestPerformanceRequest {
+  string job_id = 1;                                // Backtest job ID
+  string model_name = 2;                            // Model name
+  string model_version = 3;                         // Model version
+  repeated MLPrediction predictions = 4;            // ML prediction results
+  repeated ActualOutcome actual_outcomes = 5;       // Actual outcomes
+  map<string, float> feature_importances = 6;       // Feature importances (optional)
+  string user_id = 7;                               // User ID
+}
+
+message MLPrediction {
+  string timestamp = 1;   // ISO 8601 format (e.g., "2025-01-01T09:30:00Z")
+  string prediction = 2;  // "BUY", "SELL", "HOLD"
+  float confidence = 3;   // 0.0 ~ 1.0
+  string regime = 4;      // "bull", "bear", "sideways" (optional)
+}
+
+message ActualOutcome {
+  string timestamp = 1;  // ISO 8601 format
+  string actual = 2;     // "BUY", "SELL", "HOLD"
+}
+
+message AnalyzeMLBacktestPerformanceResponse {
+  string performance_id = 1;  // Generated Performance Document ID
+  bool success = 2;           // Success status
+  string message = 3;         // Message (error details if failed)
 }
