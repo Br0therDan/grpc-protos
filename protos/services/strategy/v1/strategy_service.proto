@@ -102,6 +102,7 @@ message StrategyVersionResponse {
   optional string dsl_code = 13; // Executable DSL code (required for backtest/live execution)
   optional string dsl_code_hash = 14; // SHA256 hash for cache invalidation
   optional string source_type = 15; // "graph" | "rules" | "dsl" (conversion provenance)
+  optional string default_dsl = 16; // Pre-generated DSL code (optional)
 }
 
 message GraphSpec {
@@ -171,6 +172,7 @@ message TemplateResponse {
   google.protobuf.Struct default_execution_profile = 10;
   string created_at = 11;
   string updated_at = 12;
+  optional string default_dsl = 13; // Pre-generated DSL code (optional)
 }
 
 message StrategyResponse {
