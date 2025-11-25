@@ -89,11 +89,11 @@ message StrategyVersionResponse {
   string dsl_code = 6; // Executable DSL code (REQUIRED - single source of truth)
   string dsl_code_hash = 7; // SHA256 hash for cache invalidation
   string original_source = 8; // "template" | "graph_ui" | "rule_ui" | "dsl_ui"
-  
+
   // Frontend rendering caches (optional, generated from dsl_code)
   optional string graph_cache = 9; // JSON-encoded graph structure for Graph Editor
   optional string rules_cache = 10; // JSON-encoded rules structure for Rule Builder
-  
+
   optional string template_id = 11; // Template used for instantiation (if any)
 
   // Validation results
@@ -147,10 +147,10 @@ message TemplateResponse {
   string description = 4;
   string visibility = 5; // "public" | "system" | "private"
   repeated string tags = 6;
-  
+
   // Phase 3: DSL Single Source
   string default_dsl = 7; // Pre-generated DSL code (REQUIRED for templates)
-  
+
   optional google.protobuf.Struct default_execution_profile = 8;
   string created_at = 9;
   string updated_at = 10;
