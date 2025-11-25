@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-from protos.services.strategy.v1 import strategy_service_pb2 as protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2
+from mysingle_protos.protos.services.strategy.v1 import strategy_service_pb2 as protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2
 
 
 class StrategyServiceStub(object):
