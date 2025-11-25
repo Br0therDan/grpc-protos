@@ -52,6 +52,11 @@ class StrategyServiceStub(object):
                 request_serializer=protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.BatchGetStrategiesRequest.SerializeToString,
                 response_deserializer=protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.StrategyResponse.FromString,
                 _registered_method=True)
+        self.ListUserStrategies = channel.unary_stream(
+                '/strategy.StrategyService/ListUserStrategies',
+                request_serializer=protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.ListUserStrategiesRequest.SerializeToString,
+                response_deserializer=protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.StrategyResponse.FromString,
+                _registered_method=True)
 
 
 class StrategyServiceServicer(object):
@@ -111,6 +116,13 @@ class StrategyServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def ListUserStrategies(self, request, context):
+        """List user's strategies (auto-discovery by user_id) - NEW
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_StrategyServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -147,6 +159,11 @@ def add_StrategyServiceServicer_to_server(servicer, server):
             'BatchGetStrategies': grpc.unary_stream_rpc_method_handler(
                     servicer.BatchGetStrategies,
                     request_deserializer=protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.BatchGetStrategiesRequest.FromString,
+                    response_serializer=protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.StrategyResponse.SerializeToString,
+            ),
+            'ListUserStrategies': grpc.unary_stream_rpc_method_handler(
+                    servicer.ListUserStrategies,
+                    request_deserializer=protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.ListUserStrategiesRequest.FromString,
                     response_serializer=protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.StrategyResponse.SerializeToString,
             ),
     }
@@ -341,6 +358,33 @@ class StrategyService(object):
             target,
             '/strategy.StrategyService/BatchGetStrategies',
             protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.BatchGetStrategiesRequest.SerializeToString,
+            protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.StrategyResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def ListUserStrategies(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_stream(
+            request,
+            target,
+            '/strategy.StrategyService/ListUserStrategies',
+            protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.ListUserStrategiesRequest.SerializeToString,
             protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.StrategyResponse.FromString,
             options,
             channel_credentials,
