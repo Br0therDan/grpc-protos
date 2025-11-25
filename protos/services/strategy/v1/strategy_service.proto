@@ -83,44 +83,25 @@ message StrategyVersionResponse {
   string user_id = 2;
   string strategy_id = 3;
   int32 seq = 4;
-  string state = 5; // DRAFT, STRUCT_VALID, STATIC_VALID, READY_FOR_BACKTEST, etc.
-  string graph_spec_version_id = 6;
-  optional string rule_set_version_id = 7;
-  optional string template_id = 8;
+  string state = 5; // DRAFT, VALIDATED, COMPILED, READY_FOR_BACKTEST, INVALID, DEPRECATED
 
-  // Graph specification (embedded)
-  GraphSpec graph_spec = 9;
+  // Phase 3: DSL Single Source of Truth (v2.0.0)
+  string dsl_code = 6; // Executable DSL code (REQUIRED - single source of truth)
+  string dsl_code_hash = 7; // SHA256 hash for cache invalidation
+  string original_source = 8; // "template" | "graph_ui" | "rule_ui" | "dsl_ui"
+
+  // Frontend rendering caches (optional, generated from dsl_code)
+  optional string graph_cache = 9; // JSON-encoded graph structure for Graph Editor
+  optional string rules_cache = 10; // JSON-encoded rules structure for Rule Builder
+
+  optional string template_id = 11; // Template used for instantiation (if any)
 
   // Validation results
-  repeated ValidationResult validation_pipeline = 10;
+  repeated ValidationResult validation_pipeline = 12;
 
   // Timestamps
-  string created_at = 11; // ISO 8601 format
-  string updated_at = 12;
-
-  // Phase 5.5: DSL Single Source of Truth
-  optional string dsl_code = 13; // Executable DSL code (required for backtest/live execution)
-  optional string dsl_code_hash = 14; // SHA256 hash for cache invalidation
-  optional string source_type = 15; // "graph" | "rules" | "dsl" (conversion provenance)
-  optional string default_dsl = 16; // Pre-generated DSL code (optional)
-}
-
-message GraphSpec {
-  repeated GraphNode nodes = 1;
-  repeated GraphEdge edges = 2;
-}
-
-message GraphNode {
-  string id = 1;
-  string type = 2; // ACTION, CONDITION, PATTERN
-  map<string, string> config = 3; // JSON serialized config
-}
-
-message GraphEdge {
-  string id = 1;
-  string source = 2;
-  string target = 3;
-  optional string label = 4;
+  string created_at = 13; // ISO 8601 format
+  string updated_at = 14; // ISO 8601 format
 }
 
 message ValidationResult {
@@ -166,13 +147,13 @@ message TemplateResponse {
   string description = 4;
   string visibility = 5; // "public" | "system" | "private"
   repeated string tags = 6;
-  google.protobuf.Struct default_graph_nodes = 7;
-  google.protobuf.Struct default_graph_edges = 8;
-  google.protobuf.Struct default_rules = 9;
-  google.protobuf.Struct default_execution_profile = 10;
-  string created_at = 11;
-  string updated_at = 12;
-  optional string default_dsl = 13; // Pre-generated DSL code (optional)
+
+  // Phase 3: DSL Single Source
+  string default_dsl = 7; // Pre-generated DSL code (REQUIRED for templates)
+
+  optional google.protobuf.Struct default_execution_profile = 8;
+  string created_at = 9;
+  string updated_at = 10;
 }
 
 message StrategyResponse {
