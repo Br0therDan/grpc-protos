@@ -30,6 +30,9 @@ service StrategyService {
 
   // Batch get multiple strategies (streaming)
   rpc BatchGetStrategies(BatchGetStrategiesRequest) returns (stream StrategyResponse);
+
+  // List user's strategies (auto-discovery by user_id) - NEW
+  rpc ListUserStrategies(ListUserStrategiesRequest) returns (stream StrategyResponse);
 }
 
 // Request Messages
@@ -74,6 +77,15 @@ message ListTemplatesRequest {
 message BatchGetStrategiesRequest {
   repeated string strategy_ids = 1;
   string user_id = 2;
+}
+
+// NEW: List user's strategies with pagination and filtering
+message ListUserStrategiesRequest {
+  string user_id = 1;
+  optional int32 limit = 2; // Default: 50, Max: 100
+  optional int32 offset = 3; // Default: 0
+  optional string status = 4; // Optional filter: "draft", "active", "archived"
+  repeated string tags = 5; // Optional filter by tags
 }
 
 // Response Messages
