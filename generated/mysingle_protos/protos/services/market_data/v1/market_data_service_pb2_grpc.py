@@ -63,6 +63,16 @@ class MarketDataServiceStub(object):
                 request_serializer=protos_dot_services_dot_market__data_dot_v1_dot_market__data__service__pb2.SearchSymbolsRequest.SerializeToString,
                 response_deserializer=protos_dot_services_dot_market__data_dot_v1_dot_market__data__service__pb2.SearchSymbolsResponse.FromString,
                 _registered_method=True)
+        self.BatchGetDailyOHLCV = channel.unary_unary(
+                '/market_data.MarketDataService/BatchGetDailyOHLCV',
+                request_serializer=protos_dot_services_dot_market__data_dot_v1_dot_market__data__service__pb2.BatchGetDailyOHLCVRequest.SerializeToString,
+                response_deserializer=protos_dot_services_dot_market__data_dot_v1_dot_market__data__service__pb2.BatchGetDailyOHLCVResponse.FromString,
+                _registered_method=True)
+        self.BatchGetQuote = channel.unary_unary(
+                '/market_data.MarketDataService/BatchGetQuote',
+                request_serializer=protos_dot_services_dot_market__data_dot_v1_dot_market__data__service__pb2.BatchGetQuoteRequest.SerializeToString,
+                response_deserializer=protos_dot_services_dot_market__data_dot_v1_dot_market__data__service__pb2.BatchGetQuoteResponse.FromString,
+                _registered_method=True)
         self.GetForexDaily = channel.unary_unary(
                 '/market_data.MarketDataService/GetForexDaily',
                 request_serializer=protos_dot_services_dot_market__data_dot_v1_dot_market__data__service__pb2.GetForexDailyRequest.SerializeToString,
@@ -333,6 +343,19 @@ class MarketDataServiceServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def SearchSymbols(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def BatchGetDailyOHLCV(self, request, context):
+        """Batch operations for multiple symbols (Strategy/Backtest services)
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def BatchGetQuote(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -644,6 +667,16 @@ def add_MarketDataServiceServicer_to_server(servicer, server):
                     servicer.SearchSymbols,
                     request_deserializer=protos_dot_services_dot_market__data_dot_v1_dot_market__data__service__pb2.SearchSymbolsRequest.FromString,
                     response_serializer=protos_dot_services_dot_market__data_dot_v1_dot_market__data__service__pb2.SearchSymbolsResponse.SerializeToString,
+            ),
+            'BatchGetDailyOHLCV': grpc.unary_unary_rpc_method_handler(
+                    servicer.BatchGetDailyOHLCV,
+                    request_deserializer=protos_dot_services_dot_market__data_dot_v1_dot_market__data__service__pb2.BatchGetDailyOHLCVRequest.FromString,
+                    response_serializer=protos_dot_services_dot_market__data_dot_v1_dot_market__data__service__pb2.BatchGetDailyOHLCVResponse.SerializeToString,
+            ),
+            'BatchGetQuote': grpc.unary_unary_rpc_method_handler(
+                    servicer.BatchGetQuote,
+                    request_deserializer=protos_dot_services_dot_market__data_dot_v1_dot_market__data__service__pb2.BatchGetQuoteRequest.FromString,
+                    response_serializer=protos_dot_services_dot_market__data_dot_v1_dot_market__data__service__pb2.BatchGetQuoteResponse.SerializeToString,
             ),
             'GetForexDaily': grpc.unary_unary_rpc_method_handler(
                     servicer.GetForexDaily,
@@ -1103,6 +1136,60 @@ class MarketDataService(object):
             '/market_data.MarketDataService/SearchSymbols',
             protos_dot_services_dot_market__data_dot_v1_dot_market__data__service__pb2.SearchSymbolsRequest.SerializeToString,
             protos_dot_services_dot_market__data_dot_v1_dot_market__data__service__pb2.SearchSymbolsResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def BatchGetDailyOHLCV(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/market_data.MarketDataService/BatchGetDailyOHLCV',
+            protos_dot_services_dot_market__data_dot_v1_dot_market__data__service__pb2.BatchGetDailyOHLCVRequest.SerializeToString,
+            protos_dot_services_dot_market__data_dot_v1_dot_market__data__service__pb2.BatchGetDailyOHLCVResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def BatchGetQuote(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/market_data.MarketDataService/BatchGetQuote',
+            protos_dot_services_dot_market__data_dot_v1_dot_market__data__service__pb2.BatchGetQuoteRequest.SerializeToString,
+            protos_dot_services_dot_market__data_dot_v1_dot_market__data__service__pb2.BatchGetQuoteResponse.FromString,
             options,
             channel_credentials,
             insecure,

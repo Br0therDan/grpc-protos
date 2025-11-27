@@ -123,6 +123,47 @@ message SearchSymbolsResponse {
   int32 count = 2;
 }
 
+// Batch request for multiple symbols (for Strategy/Backtest services)
+message BatchGetDailyOHLCVRequest {
+  repeated string symbols = 1; // Multiple symbols to fetch
+  optional string start_date = 2; // YYYY-MM-DD
+  optional string end_date = 3; // YYYY-MM-DD
+  optional bool adjusted = 4; // Include adjusted close
+}
+
+message SymbolOHLCVData {
+  string symbol = 1;
+  repeated OHLCVBar bars = 2;
+  int32 count = 3;
+  bool cached = 4;
+  optional string error = 5; // Error message if fetch failed
+}
+
+message BatchGetDailyOHLCVResponse {
+  repeated SymbolOHLCVData data = 1;
+  int32 total_symbols = 2;
+  int32 success_count = 3;
+  int32 error_count = 4;
+}
+
+message BatchGetQuoteRequest {
+  repeated string symbols = 1; // Multiple symbols to fetch
+}
+
+message SymbolQuoteData {
+  string symbol = 1;
+  optional QuoteData quote = 2;
+  bool cached = 3;
+  optional string error = 4; // Error message if fetch failed
+}
+
+message BatchGetQuoteResponse {
+  repeated SymbolQuoteData data = 1;
+  int32 total_symbols = 2;
+  int32 success_count = 3;
+  int32 error_count = 4;
+}
+
 // ============================================================================
 // Forex Domain Messages & Service
 // ============================================================================
@@ -957,6 +998,9 @@ service MarketDataService {
   rpc GetMonthlyOHLCV(GetMonthlyOHLCVRequest) returns (OHLCVResponse);
   rpc GetQuote(GetQuoteRequest) returns (QuoteResponse);
   rpc SearchSymbols(SearchSymbolsRequest) returns (SearchSymbolsResponse);
+  // Batch operations for multiple symbols (Strategy/Backtest services)
+  rpc BatchGetDailyOHLCV(BatchGetDailyOHLCVRequest) returns (BatchGetDailyOHLCVResponse);
+  rpc BatchGetQuote(BatchGetQuoteRequest) returns (BatchGetQuoteResponse);
 
   // Forex Domain
   rpc GetForexDaily(GetForexDailyRequest) returns (ForexResponse);
