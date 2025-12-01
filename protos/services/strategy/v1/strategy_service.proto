@@ -1,8 +1,9 @@
 syntax = "proto3";
 
-package strategy;
+package strategy.v1;
 
 import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
 
 // Strategy Service - gRPC API
 // Used by Backtest Service and GenAI Service for high-performance strategy operations
@@ -33,6 +34,13 @@ service StrategyService {
 
   // List user's strategies (auto-discovery by user_id) - NEW
   rpc ListUserStrategies(ListUserStrategiesRequest) returns (stream StrategyResponse);
+
+  // ---- ml-service compatibility RPCs ----
+  // These RPCs are required by `ml-service` and added for backward/forward compatibility.
+  rpc GetStrategy(GetStrategyRequest) returns (GetStrategyResponse);
+  rpc ListStrategies(ListStrategiesRequest) returns (ListStrategiesResponse);
+  rpc ValidateStrategy(ValidateStrategyRequest) returns (ValidateStrategyResponse);
+  rpc GetPortfolioSummary(GetPortfolioSummaryRequest) returns (GetPortfolioSummaryResponse);
 }
 
 // Request Messages
@@ -177,6 +185,72 @@ message StrategyResponse {
   repeated string tags = 6;
   string created_at = 7;
   string updated_at = 8;
+}
+
+// --- ml-service compatibility Messages ---
+
+message GetStrategyRequest {
+  string strategy_id = 1;
+  string user_id = 2;
+}
+
+message Strategy {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  string user_id = 4;
+  bool is_active = 5;
+}
+
+message GetStrategyResponse {
+  Strategy strategy = 1;
+}
+
+message ListStrategiesRequest {
+  string user_id = 1;
+  bool is_active = 2;
+  int32 limit = 3;
+  int32 skip = 4;
+}
+
+message ListStrategiesResponse {
+  repeated Strategy strategies = 1;
+  int32 total = 2;
+}
+
+message ValidateStrategyRequest {
+  string strategy_id = 1;
+  string user_id = 2;
+}
+
+message ValidateStrategyResponse {
+  bool is_valid = 1;
+  repeated string errors = 2;
+  repeated string warnings = 3;
+}
+
+message Position {
+  string symbol = 1;
+  double quantity = 2;
+  double value = 3;
+}
+
+message PortfolioHistoryPoint {
+  google.protobuf.Timestamp timestamp = 1;
+  double value = 2;
+}
+
+message GetPortfolioSummaryRequest {
+  string strategy_id = 1;
+  string user_id = 2;
+}
+
+message GetPortfolioSummaryResponse {
+  string strategy_id = 1;
+  double total_value = 2;
+  repeated Position positions = 3;
+  repeated PortfolioHistoryPoint history = 4;
+  string currency = 5;
 }
 
 // Error handling (standard gRPC status codes)
