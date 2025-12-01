@@ -30,7 +30,9 @@ jobs:
                   python-version: "3.12"
 
             - name: Install uv
-              run: curl -LsSf https://astral.sh/uv/install.sh | sh
+              run: |
+                  curl -LsSf https://astral.sh/uv/install.sh | sh
+                  echo "$HOME/.local/bin" >> $GITHUB_PATH
 
             - name: Setup Buf
               uses: bufbuild/buf-setup-action@v1
@@ -38,28 +40,19 @@ jobs:
                   version: "1.60.0"
 
             - name: Install package
-              run: |
-                  source $HOME/.local/bin/env
-                  uv pip install -e .
+              run: uv pip install -e .
 
             - name: Test proto-cli help
-              run: |
-                  source $HOME/.local/bin/env
-                  uv run proto-cli --help
+              run: uv run proto-cli --help
 
             - name: Test proto-cli init
-              run: |
-                  source $HOME/.local/bin/env
-                  uv run proto-cli init
+              run: uv run proto-cli init
 
             - name: Test proto-cli status (no services)
-              run: |
-                  source $HOME/.local/bin/env
-                  uv run proto-cli status || true
+              run: uv run proto-cli status || true
 
             - name: Verify CLI output formatting
               run: |
-                  source $HOME/.local/bin/env
                   OUTPUT=$(uv run proto-cli --help)
                   if echo "$OUTPUT" | grep -q "MySingle Quant"; then
                     echo "✅ CLI help output is correct"
