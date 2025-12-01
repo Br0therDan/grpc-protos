@@ -43,6 +43,10 @@ service StrategyService {
   // ListUserStrategies RPC.
   rpc ListUserStrategies(ListUserStrategiesRequest) returns (stream StrategyResponse);
 
+  // Archive a strategy (soft delete)
+  // ArchiveStrategy RPC.
+  rpc ArchiveStrategy(ArchiveStrategyRequest) returns (ArchiveStrategyResponse);
+
   // ---- ml-service compatibility RPCs ----
   // These RPCs are required by `ml-service` and added for backward/forward compatibility.
   // GetStrategy RPC.
@@ -389,6 +393,24 @@ message GetPortfolioSummaryResponse {
   repeated PortfolioHistoryPoint history = 4;
   // Currency code.
   string currency = 5;
+}
+
+// ArchiveStrategyRequest defines the request payload for ArchiveStrategy.
+message ArchiveStrategyRequest {
+  // Strategy identifier to archive.
+  string strategy_id = 1;
+  // User identifier (for authorization).
+  string user_id = 2;
+}
+
+// ArchiveStrategyResponse defines the response payload for ArchiveStrategy.
+message ArchiveStrategyResponse {
+  // Success flag.
+  bool success = 1;
+  // Archived strategy identifier.
+  string strategy_id = 2;
+  // Timestamp when the strategy was archived.
+  google.protobuf.Timestamp archived_at = 3;
 }
 
 // Error handling (standard gRPC status codes)
