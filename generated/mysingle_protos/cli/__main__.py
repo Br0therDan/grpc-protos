@@ -2,10 +2,11 @@
 Proto CLI - gRPC Proto 파일 관리 도구.
 
 사용법:
-    proto-cli init              # 저장소 초기화 및 환경 확인
+    proto-cli init              # 저장소 초기화 및 submodule 구성
     proto-cli status            # 서비스별 proto 파일 현황
-    proto-cli sync [SERVICE]    # Proto 파일 동기화
     proto-cli generate          # 코드 생성
+    proto-cli validate          # Proto 파일 검증
+    proto-cli version           # 버전 정보
     proto-cli --help            # 도움말
 """
 
@@ -15,7 +16,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from .commands import generate, init, status, sync, validate
+from .commands import generate, init, status, validate, version
 from .models import ProtoConfig
 from .utils import Color, LogLevel, colorize, log
 
@@ -42,10 +43,10 @@ def build_parser() -> argparse.ArgumentParser:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 사용 예시:
-  %(prog)s init                    # 저장소 환경 확인
+  %(prog)s init                    # 저장소 환경 확인 / Submodule 구성
   %(prog)s status                  # 서비스별 proto 현황
   %(prog)s status -v               # 상세 파일 목록 포함
-  %(prog)s sync strategy-service   # 특정 서비스 동기화
+  %(prog)s validate --fix          # Proto 검증 및 자동 수정
   %(prog)s generate                # 코드 생성
 
 더 자세한 정보:
@@ -78,14 +79,6 @@ def build_parser() -> argparse.ArgumentParser:
     )
     status.setup_parser(status_parser)
 
-    # sync 명령
-    sync_parser = subparsers.add_parser(
-        "sync",
-        help="서비스 proto 파일을 중앙 저장소로 동기화",
-        description="서비스 디렉터리의 proto 파일을 grpc-protos 저장소로 복사합니다.",
-    )
-    sync.setup_parser(sync_parser)
-
     # generate 명령
     generate_parser = subparsers.add_parser(
         "generate",
@@ -102,10 +95,17 @@ def build_parser() -> argparse.ArgumentParser:
     )
     validate.setup_parser(validate_parser)
 
+    # version 명령
+    version_parser = subparsers.add_parser(
+        "version",
+        help="Proto 버전 정보 확인",
+        description="현재 grpc-protos 버전과 Git 상태를 확인합니다.",
+    )
+    version.setup_parser(version_parser)
+
     # TODO: 추가 명령어 구현 예정
-    # - branch: 브랜치 관리
-    # - pr: Pull Request 생성
-    # - release: 릴리즈 생성
+    # - pr: Pull Request 생성 자동화
+    # - diff: Proto 변경사항 시각화
 
     return parser
 
@@ -134,12 +134,12 @@ def main(argv: list[str] | None = None) -> int:
             return init.execute(args, config)
         elif args.command == "status":
             return status.execute(args, config)
-        elif args.command == "sync":
-            return sync.execute(args, config)
         elif args.command == "generate":
             return generate.execute(args, config)
         elif args.command == "validate":
             return validate.execute(args, config)
+        elif args.command == "version":
+            return version.execute(args, config)
         else:
             log(f"알 수 없는 명령: {args.command}", LogLevel.ERROR)
             parser.print_help()
