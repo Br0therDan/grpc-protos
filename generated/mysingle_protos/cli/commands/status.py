@@ -14,9 +14,8 @@ from ..utils import Color, LogLevel, colorize, log, log_header, log_table
 def discover_services(config: ProtoConfig) -> list[ServiceProtoInfo]:
     """서비스 디렉터리에서 proto 정보 스캔"""
     if not config.services_root.exists():
-        raise SystemExit(
-            f"서비스 루트 디렉터리를 찾을 수 없습니다: {config.services_root}"
-        )
+        # 서비스 submodule에서 실행한 경우 빈 리스트 반환
+        return []
 
     log_header("서비스 스캔")
     result: list[ServiceProtoInfo] = []
@@ -54,6 +53,18 @@ def discover_services(config: ProtoConfig) -> list[ServiceProtoInfo]:
 
 def execute(args: argparse.Namespace, config: ProtoConfig) -> int:
     """Status 명령 실행"""
+    # Submodule 내에서 실행 시 경고
+    if not config.services_root.exists():
+        log(
+            "⚠️  이 명령은 grpc-protos 메인 저장소에서만 사용할 수 있습니다.",
+            LogLevel.WARNING,
+        )
+        log(
+            "서비스 디렉터리의 submodule에서는 'proto-cli version' 또는 'proto-cli validate'를 사용하세요.",
+            LogLevel.INFO,
+        )
+        return 1
+
     services = discover_services(config)
 
     if not services:

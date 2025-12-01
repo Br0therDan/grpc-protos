@@ -59,6 +59,11 @@ uv run proto-cli --help
 
 ### proto-cli 명령어
 
+> **💡 사용 컨텍스트**
+> - **grpc-protos 메인 저장소**: `init`, `status`, `validate`, `generate`, `version` 모두 사용 가능
+> - **서비스 submodule 내** (`services/*/grpc-protos`): `init`, `validate`, `generate`, `version`만 사용
+>   - `status` 명령은 메인 저장소에서만 의미가 있습니다.
+
 #### 1. 저장소 초기화 및 환경 확인
 
 #### 1. 저장소 초기화 및 Submodule 구성
@@ -128,10 +133,12 @@ uv run proto-cli init
 
 #### 2. Proto 파일 현황 확인
 
+**⚠️  이 명령은 grpc-protos 메인 저장소에서만 사용하세요.**
+
 grpc-protos 저장소 내부에서 proto 파일 현황을 확인합니다.
 
 ```bash
-cd grpc-protos
+cd grpc-protos  # 메인 저장소로 이동
 uv run proto-cli status
 
 # 상세 모드 (파일 목록 포함)
