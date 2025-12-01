@@ -46,7 +46,7 @@ graph TB
     S1 -->|sync| GP
     S2 -->|sync| GP
     S3 -->|sync| GP
-    GP -->|generate & publish| PKG[mysingle-protos@v2.0.4]
+    GP -->|generate & publish| PKG["mysingle-protos v2.0.4"]
     PKG -->|pip install| S1
     PKG -->|pip install| S2
     PKG -->|pip install| S3
@@ -114,7 +114,7 @@ graph TB
     GENERATE --> TAG
     TAG --> PUBLISH
     
-    PUBLISH --> PKG[mysingle-protos@v2.x.x]
+    PUBLISH --> PKG["mysingle-protos v2.x.x"]
     PKG -->|pip install| SERVICES[모든 서비스]
     
     style MAIN fill:#90EE90
@@ -131,7 +131,7 @@ graph TB
 ```mermaid
 graph LR
     subgraph "grpc-protos Repository"
-        ROOT[/]
+        ROOT["Repository Root"]
         
         subgraph "protos/"
             COMMON[common/]
@@ -266,11 +266,11 @@ graph TB
     end
     
     subgraph "팀 권한"
-        ADMIN[@team-platform-admin]
-        STRATEGY_TEAM[@team-strategy]
-        MARKET_TEAM[@team-market-data]
-        INDICATOR_TEAM[@team-indicator]
-        GENAI_TEAM[@team-genai]
+        ADMIN["team-platform-admin"]
+        STRATEGY_TEAM["team-strategy"]
+        MARKET_TEAM["team-market-data"]
+        INDICATOR_TEAM["team-indicator"]
+        GENAI_TEAM["team-genai"]
     end
     
     COMMON --> ADMIN
@@ -406,27 +406,27 @@ graph TB
     CLI[proto-cli]
     
     subgraph "저장소 관리"
-        INIT[init - grpc-protos 클론 및 설정]
-        STATUS[status - 현재 상태 확인]
-        SYNC[sync - 최신 변경사항 동기화]
+        INIT["init - grpc-protos 클론 및 설정"]
+        STATUS["status - 현재 상태 확인"]
+        SYNC["sync - 최신 변경사항 동기화"]
     end
     
     subgraph "개발 작업"
-        BRANCH[branch - 기능 브랜치 생성]
-        EDIT[edit - proto 파일 편집 (에디터 실행)]
-        VALIDATE[validate - 로컬 검증]
+        BRANCH["branch - 기능 브랜치 생성"]
+        EDIT["edit - proto 파일 편집"]
+        VALIDATE["validate - 로컬 검증"]
     end
     
     subgraph "배포 작업"
-        CODEGEN[codegen - 코드 생성]
-        PR[pr - Pull Request 생성]
-        RELEASE[release - 버전 릴리즈 (권한자만)]
+        CODEGEN["codegen - 코드 생성"]
+        PR["pr - Pull Request 생성"]
+        RELEASE["release - 버전 릴리즈"]
     end
     
     subgraph "협업 도구"
-        DIFF[diff - 변경사항 비교]
-        IMPACT[impact - 영향도 분석]
-        OWNERS[owners - 소유자 확인]
+        DIFF["diff - 변경사항 비교"]
+        IMPACT["impact - 영향도 분석"]
+        OWNERS["owners - 소유자 확인"]
     end
     
     CLI --> INIT

@@ -1,0 +1,99 @@
+# gRPC Proto Repository - Code Owners
+# 
+# 이 파일은 각 proto 파일의 소유권과 리뷰 권한을 정의합니다.
+# PR 생성 시 해당 파일의 CODEOWNERS가 자동으로 리뷰어로 지정됩니다.
+#
+# 문법: <파일패턴> <@팀명> <@팀명>
+# 참고: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# =============================================================================
+# 기본 소유권 - Platform Admin Team
+# =============================================================================
+# 명시되지 않은 모든 파일은 플랫폼 팀의 리뷰가 필요합니다
+* @Br0therDan
+
+# =============================================================================
+# Common Proto Files
+# =============================================================================
+# 공통 proto는 모든 서비스에 영향을 미치므로 엄격한 리뷰 필요
+/protos/common/ @Br0therDan
+
+# =============================================================================
+# Service-Specific Proto Files
+# =============================================================================
+# 각 서비스 팀이 해당 proto 파일에 대한 소유권을 가집니다
+# 서버 팀은 직접 수정 가능, 클라이언트 팀은 PR 리뷰 요청
+
+# Strategy Service (gRPC Server)
+# - 전략 실행 엔진, 백테스팅 전략 관리
+/protos/services/strategy/ @Br0therDan
+
+# Market Data Service (gRPC Server)
+# - 시장 데이터 제공, 실시간/과거 데이터
+/protos/services/market_data/ @Br0therDan
+
+# Indicator Service (gRPC Server)
+# - 기술적 지표 계산
+/protos/services/indicator/ @Br0therDan
+
+# GenAI Service (gRPC Server)
+# - AI 기반 전략 생성, DSL 검증
+/protos/services/genai/ @Br0therDan
+
+# ML Service (gRPC Server)
+# - 머신러닝 모델 학습/예측
+/protos/services/ml/ @Br0therDan
+
+# Backtest Service (gRPC Server)
+# - 백테스팅 실행 엔진
+/protos/services/backtest/ @Br0therDan
+
+# IAM Service (HTTP-only, 향후 gRPC 전환 예정)
+/protos/services/iam/ @Br0therDan
+
+# =============================================================================
+# Infrastructure & Tooling
+# =============================================================================
+# CI/CD, 빌드 스크립트, 설정 파일은 플랫폼 팀만 수정 가능
+
+# GitHub Actions 워크플로우
+/.github/ @Br0therDan
+
+# Buf 설정 (Proto 린트, 포맷, Breaking Change 검증)
+/buf.yaml @Br0therDan
+/buf.gen.yaml @Br0therDan
+
+# Python 패키지 설정
+/pyproject.toml @Br0therDan
+/setup.py @Br0therDan
+
+# CLI 도구 및 스크립트
+/scripts/ @Br0therDan
+
+# 문서
+/docs/ @Br0therDan
+/README.md @Br0therDan
+/RELEASE_PROCESS.md @Br0therDan
+
+# =============================================================================
+# 참고사항
+# =============================================================================
+# 
+# 1. GitHub Teams 설정 필요:
+#    - @Br0therDan → Platform Admin (현재는 개인 계정)
+#    - 향후 조직 전환 시:
+#      - @mysingle-quant/platform-admin
+#      - @mysingle-quant/team-strategy
+#      - @mysingle-quant/team-market-data
+#      등으로 변경 예정
+#
+# 2. 권한 레벨:
+#    - Platform Admin: 모든 파일 직접 수정 가능
+#    - Service Owner (gRPC Server): 해당 proto 직접 수정 가능
+#    - Service Owner (gRPC Client): PR 생성 후 서버 팀 리뷰 필요
+#    - External Contributor: PR 생성 후 엄격한 리뷰 필요
+#
+# 3. 변경 프로세스:
+#    - 서버 팀: feature 브랜치 생성 → 수정 → PR to dev → 자동 병합 (CI 통과 시)
+#    - 클라이언트 팀: feature 브랜치 생성 → 수정 → PR to dev → 서버 팀 리뷰 → 병합
+#    - dev → main: PR 생성 → 2명 승인 + CI 통과 → 병합 → 자동 릴리즈
