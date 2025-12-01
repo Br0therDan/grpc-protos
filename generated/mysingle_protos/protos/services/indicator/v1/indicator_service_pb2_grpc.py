@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-from protos.services.indicator.v1 import indicator_service_pb2 as protos_dot_services_dot_indicator_dot_v1_dot_indicator__service__pb2
+from mysingle_protos.protos.services.indicator.v1 import indicator_service_pb2 as protos_dot_services_dot_indicator_dot_v1_dot_indicator__service__pb2
 
 
 class IndicatorServiceStub(object):

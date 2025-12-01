@@ -345,7 +345,7 @@ python -c "import mysingle_protos; print(mysingle_protos.__version__)"
 # pyproject.toml
 [project]
 dependencies = [
-    "mysingle-protos @ git+https://github.com/Br0therDan/grpc-protos.git@v2.0.1",
+    "mysingle-protos @ git+https://github.com/Br0therDan/grpc-protos.git@v2.0.2",
 ]
 ```
 
