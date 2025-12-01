@@ -17,14 +17,24 @@ MySingle Quant 플랫폼의 중앙집중식 gRPC Protocol Buffers 저장소입�
 
 ## 📦 설치
 
+### 필수 요구사항
+
+```bash
+# uv 설치 (Python 패키지 관리자)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# 또는 macOS/Linux
+brew install uv
+```
+
 ### 패키지 설치 (서비스 개발자)
 
 ```bash
 # Git 저장소에서 직접 설치
-pip install git+https://github.com/Br0therDan/grpc-protos.git@v2.0.4
+uv pip install git+https://github.com/Br0therDan/grpc-protos.git@v2.0.4
 
 # 또는 특정 브랜치
-pip install git+https://github.com/Br0therDan/grpc-protos.git@dev
+uv pip install git+https://github.com/Br0therDan/grpc-protos.git@dev
 ```
 
 ### 로컬 개발 (Proto 관리자)
@@ -241,7 +251,7 @@ git push origin feature/add-batch-get-strategies
 
 ```bash
 # 1. 최신 proto 패키지 설치
-pip install git+https://github.com/Br0therDan/grpc-protos.git@v2.0.4
+uv pip install git+https://github.com/Br0therDan/grpc-protos.git@v2.0.4
 
 # 2. gRPC 클라이언트 코드 작성
 from mysingle_protos.protos.services.strategy.v1 import strategy_service_pb2
