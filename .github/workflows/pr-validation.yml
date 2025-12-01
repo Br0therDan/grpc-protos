@@ -1,0 +1,89 @@
+# PR Validation Workflow
+# dev 브랜치로의 PR 시 buf lint, format check 실행
+name: PR Validation
+
+on:
+    pull_request:
+        branches:
+            - dev
+            - main
+
+jobs:
+    buf-lint:
+        name: Buf Lint
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup Buf
+              uses: bufbuild/buf-setup-action@v1
+              with:
+                  version: "1.60.0"
+
+            - name: Buf Lint
+              run: buf lint
+
+    buf-format-check:
+        name: Buf Format Check
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup Buf
+              uses: bufbuild/buf-setup-action@v1
+              with:
+                  version: "1.60.0"
+
+            - name: Buf Format Check
+              run: |
+                  buf format -d --exit-code
+
+    buf-breaking:
+        name: Buf Breaking Change Detection
+        runs-on: ubuntu-latest
+        if: github.base_ref == 'main'
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup Buf
+              uses: bufbuild/buf-setup-action@v1
+              with:
+                  version: "1.60.0"
+
+            - name: Check Breaking Changes
+              run: |
+                  buf breaking --against 'https://github.com/${GITHUB_REPOSITORY}.git#branch=main'
+
+    generate-protos-test:
+        name: Test Proto Generation
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.12"
+
+            - name: Install uv
+              run: curl -LsSf https://astral.sh/uv/install.sh | sh
+
+            - name: Setup Buf
+              uses: bufbuild/buf-setup-action@v1
+              with:
+                  version: "1.60.0"
+
+            - name: Generate Protos
+              run: buf generate
+
+            - name: Check for generation errors
+              run: |
+                  if [ -n "$(find generated -name '*.py' -exec grep -l 'Error' {} \;)" ]; then
+                    echo "Proto generation produced errors"
+                    exit 1
+                  fi
+                  echo "Proto generation successful"

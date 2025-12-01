@@ -1,0 +1,92 @@
+# Auto Release Workflow
+# dev 브랜치가 main으로 병합되면 자동으로 태그 생성 및 릴리즈 발행
+name: Auto Release
+
+on:
+    push:
+        branches:
+            - main
+
+jobs:
+    release:
+        name: Create Release
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Setup Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.12"
+
+            - name: Install uv
+              run: curl -LsSf https://astral.sh/uv/install.sh | sh
+
+            - name: Setup Buf
+              uses: bufbuild/buf-setup-action@v1
+              with:
+                  version: "1.60.0"
+
+            - name: Extract version from pyproject.toml
+              id: version
+              run: |
+                  VERSION=$(grep '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/')
+                  echo "version=$VERSION" >> $GITHUB_OUTPUT
+                  echo "tag=v$VERSION" >> $GITHUB_OUTPUT
+
+            - name: Check if tag exists
+              id: check_tag
+              run: |
+                  if git rev-parse "v${{ steps.version.outputs.version }}" >/dev/null 2>&1; then
+                    echo "exists=true" >> $GITHUB_OUTPUT
+                  else
+                    echo "exists=false" >> $GITHUB_OUTPUT
+                  fi
+
+            - name: Generate protos
+              if: steps.check_tag.outputs.exists == 'false'
+              run: buf generate
+
+            - name: Build package
+              if: steps.check_tag.outputs.exists == 'false'
+              run: |
+                  source $HOME/.local/bin/env
+                  uv build
+
+            - name: Create Release Notes
+              if: steps.check_tag.outputs.exists == 'false'
+              id: release_notes
+              run: |
+                  PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+                  if [ -z "$PREV_TAG" ]; then
+                    echo "## Changes" > RELEASE.md
+                    git log --oneline --pretty=format:"- %s (%h)" >> RELEASE.md
+                  else
+                    echo "## Changes since $PREV_TAG" > RELEASE.md
+                    git log $PREV_TAG..HEAD --oneline --pretty=format:"- %s (%h)" >> RELEASE.md
+                  fi
+                  cat RELEASE.md
+
+            - name: Create Tag and Release
+              if: steps.check_tag.outputs.exists == 'false'
+              uses: softprops/action-gh-release@v1
+              with:
+                  tag_name: ${{ steps.version.outputs.tag }}
+                  name: Release ${{ steps.version.outputs.tag }}
+                  body_path: RELEASE.md
+                  draft: false
+                  prerelease: false
+                  files: |
+                      dist/*
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Skip release (tag exists)
+              if: steps.check_tag.outputs.exists == 'true'
+              run: |
+                  echo "Tag ${{ steps.version.outputs.tag }} already exists. Skipping release creation."
