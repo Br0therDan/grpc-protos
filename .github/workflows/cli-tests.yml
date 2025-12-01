@@ -1,0 +1,65 @@
+# CLI Test Workflow
+# CLI 명령어 동작 테스트
+name: CLI Tests
+
+on:
+    pull_request:
+        paths:
+            - "generated/mysingle_protos/cli/**"
+            - "pyproject.toml"
+            - ".github/workflows/cli-tests.yml"
+    push:
+        branches:
+            - dev
+            - main
+        paths:
+            - "generated/mysingle_protos/cli/**"
+            - "pyproject.toml"
+
+jobs:
+    test-cli:
+        name: Test CLI Commands
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.12"
+
+            - name: Install uv
+              run: |
+                  curl -LsSf https://astral.sh/uv/install.sh | sh
+                  echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+            - name: Setup Buf
+              uses: bufbuild/buf-setup-action@v1
+              with:
+                  version: "1.60.0"
+
+            - name: Create virtual environment
+              run: uv venv
+
+            - name: Install package
+              run: uv pip install -e .
+
+            - name: Test proto-cli help
+              run: uv run proto-cli --help
+
+            - name: Test proto-cli init
+              run: uv run proto-cli init
+
+            - name: Test proto-cli status (no services)
+              run: uv run proto-cli status || true
+
+            - name: Verify CLI output formatting
+              run: |
+                  OUTPUT=$(uv run proto-cli --help)
+                  if echo "$OUTPUT" | grep -q "MySingle Quant"; then
+                    echo "✅ CLI help output is correct"
+                  else
+                    echo "❌ CLI help output is incorrect"
+                    exit 1
+                  fi

@@ -23,6 +23,9 @@ classifiers = [
 
 dependencies = ["grpcio>=1.60.0,<2.0.0", "protobuf>=4.25.0,<7.0.0"]
 
+[project.scripts]
+proto-cli = "mysingle_protos.cli.__main__:main"
+
 [project.urls]
 Homepage = "https://github.com/Br0therDan/grpc-protos"
 Documentation = "https://github.com/Br0therDan/grpc-protos/blob/main/README.md"
