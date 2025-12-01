@@ -39,6 +39,9 @@ jobs:
               with:
                   version: "1.60.0"
 
+            - name: Create virtual environment
+              run: uv venv
+
             - name: Install package
               run: uv pip install -e .
 

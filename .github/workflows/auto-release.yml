@@ -54,6 +54,10 @@ jobs:
               if: steps.check_tag.outputs.exists == 'false'
               run: buf generate
 
+            - name: Create virtual environment
+              if: steps.check_tag.outputs.exists == 'false'
+              run: uv venv
+
             - name: Build package
               if: steps.check_tag.outputs.exists == 'false'
               run: uv build
