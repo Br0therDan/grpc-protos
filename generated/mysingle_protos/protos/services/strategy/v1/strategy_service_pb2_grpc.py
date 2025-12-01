@@ -8,7 +8,7 @@ from mysingle_protos.protos.services.strategy.v1 import strategy_service_pb2 as 
 class StrategyServiceStub(object):
     """Strategy Service - gRPC API
     Used by Backtest Service and GenAI Service for high-performance strategy operations
-
+    StrategyService service definition.
     """
 
     def __init__(self, channel):
@@ -82,11 +82,12 @@ class StrategyServiceStub(object):
 class StrategyServiceServicer(object):
     """Strategy Service - gRPC API
     Used by Backtest Service and GenAI Service for high-performance strategy operations
-
+    StrategyService service definition.
     """
 
     def GetStrategyVersion(self, request, context):
         """Get a single strategy version
+        GetStrategyVersion RPC.
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -94,6 +95,7 @@ class StrategyServiceServicer(object):
 
     def BatchGetStrategyVersions(self, request, context):
         """Batch get multiple strategy versions (streaming response)
+        BatchGetStrategyVersions RPC.
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -101,6 +103,7 @@ class StrategyServiceServicer(object):
 
     def HealthCheck(self, request, context):
         """Health check
+        HealthCheck RPC.
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -110,6 +113,7 @@ class StrategyServiceServicer(object):
         """--- New RPCs for GenAI Service ---
 
         Validate StrategyIR across multiple stages
+        ValidateStrategyIR RPC.
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -117,6 +121,7 @@ class StrategyServiceServicer(object):
 
     def GetStrategyTemplate(self, request, context):
         """Get a single strategy template
+        GetStrategyTemplate RPC.
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -124,6 +129,7 @@ class StrategyServiceServicer(object):
 
     def ListStrategyTemplates(self, request, context):
         """List all accessible templates (streaming)
+        ListStrategyTemplates RPC.
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -131,6 +137,7 @@ class StrategyServiceServicer(object):
 
     def BatchGetStrategies(self, request, context):
         """Batch get multiple strategies (streaming)
+        BatchGetStrategies RPC.
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -138,6 +145,7 @@ class StrategyServiceServicer(object):
 
     def ListUserStrategies(self, request, context):
         """List user's strategies (auto-discovery by user_id) - NEW
+        ListUserStrategies RPC.
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -146,25 +154,29 @@ class StrategyServiceServicer(object):
     def GetStrategy(self, request, context):
         """---- ml-service compatibility RPCs ----
         These RPCs are required by `ml-service` and added for backward/forward compatibility.
+        GetStrategy RPC.
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def ListStrategies(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+        """ListStrategies RPC.
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def ValidateStrategy(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+        """ValidateStrategy RPC.
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def GetPortfolioSummary(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+        """GetPortfolioSummary RPC.
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -243,7 +255,7 @@ def add_StrategyServiceServicer_to_server(servicer, server):
 class StrategyService(object):
     """Strategy Service - gRPC API
     Used by Backtest Service and GenAI Service for high-performance strategy operations
-
+    StrategyService service definition.
     """
 
     @staticmethod

@@ -5,11 +5,16 @@ deps:
 
 lint:
   use:
-    - DEFAULT
+    - STANDARD
     - COMMENTS
-    - UNARY_RPC
   except:
     - PACKAGE_VERSION_SUFFIX  # Allow v1, v2 suffixes
+    - PACKAGE_DIRECTORY_MATCH  # Services live under protos/services/*
+    - DIRECTORY_SAME_PACKAGE  # Allow multiple packages in shared directories
+    - PACKAGE_SAME_DIRECTORY  # Allow multiple packages per directory for legacy layout
+    - RPC_REQUEST_STANDARD_NAME  # Shared request messages across RPCs
+    - RPC_RESPONSE_STANDARD_NAME  # Shared response messages across RPCs
+    - RPC_REQUEST_RESPONSE_UNIQUE  # Intentional reuse of messages across RPCs
   
 breaking:
   use:

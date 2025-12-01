@@ -6,9 +6,8 @@ from mysingle_protos.protos.services.ml.v1 import ml_service_pb2 as protos_dot_s
 
 
 class MLServiceStub(object):
-    """ML Service - gRPC API
-    Used by Backtest Service for ML prediction and Walk-Forward optimization
-
+    """ML Service - gRPC API used for ML prediction, walk-forward optimization, and
+    feature storage workflows.
     """
 
     def __init__(self, channel):
@@ -55,55 +54,54 @@ class MLServiceStub(object):
 
 
 class MLServiceServicer(object):
-    """ML Service - gRPC API
-    Used by Backtest Service for ML prediction and Walk-Forward optimization
-
+    """ML Service - gRPC API used for ML prediction, walk-forward optimization, and
+    feature storage workflows.
     """
 
     def OptimizeParameters(self, request, context):
-        """Walk-Forward parameter optimization (Server Streaming for progress updates)
+        """Walk-forward parameter optimization streaming progress updates to callers.
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def AnalyzeWalkForward(self, request, context):
-        """Walk-Forward statistical analysis
+        """Run statistical analysis across walk-forward windows.
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def PredictSignal(self, request, context):
-        """ML signal prediction (single)
+        """Generate a single ML signal prediction.
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def PredictSignalsBatch(self, request, context):
-        """ML signal prediction (batch with streaming)
+        """Stream batch ML predictions for multiple feature vectors.
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def StoreFeatures(self, request, context):
-        """Store features in Feature Store
+        """Store computed features inside the feature store.
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def HealthCheck(self, request, context):
-        """Health check
+        """Report service health state.
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def AnalyzeMLBacktestPerformance(self, request, context):
-        """ML Backtest Performance Analysis (Backtest Service → ML Service)
+        """Analyze ML-driven backtest performance submitted by backtest service.
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -156,9 +154,8 @@ def add_MLServiceServicer_to_server(servicer, server):
 
  # This class is part of an EXPERIMENTAL API.
 class MLService(object):
-    """ML Service - gRPC API
-    Used by Backtest Service for ML prediction and Walk-Forward optimization
-
+    """ML Service - gRPC API used for ML prediction, walk-forward optimization, and
+    feature storage workflows.
     """
 
     @staticmethod

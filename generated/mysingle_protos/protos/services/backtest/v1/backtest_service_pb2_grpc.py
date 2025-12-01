@@ -6,9 +6,7 @@ from mysingle_protos.protos.services.backtest.v1 import backtest_service_pb2 as 
 
 
 class BacktestServiceStub(object):
-    """Backtest Service - gRPC API
-    Used by GenAI Service for executing backtests and retrieving results
-
+    """BacktestService service definition for executing and monitoring strategy backtests.
     """
 
     def __init__(self, channel):
@@ -55,9 +53,7 @@ class BacktestServiceStub(object):
 
 
 class BacktestServiceServicer(object):
-    """Backtest Service - gRPC API
-    Used by GenAI Service for executing backtests and retrieving results
-
+    """BacktestService service definition for executing and monitoring strategy backtests.
     """
 
     def ExecuteBacktest(self, request, context):
@@ -156,9 +152,7 @@ def add_BacktestServiceServicer_to_server(servicer, server):
 
  # This class is part of an EXPERIMENTAL API.
 class BacktestService(object):
-    """Backtest Service - gRPC API
-    Used by GenAI Service for executing backtests and retrieving results
-
+    """BacktestService service definition for executing and monitoring strategy backtests.
     """
 
     @staticmethod

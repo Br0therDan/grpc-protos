@@ -22,29 +22,40 @@ service IndicatorService {
 
 // Request to get metadata for a single indicator
 message GetIndicatorMetadataRequest {
-  string name = 1; // Indicator name (e.g., "sma", "rsi")
-  string user_id = 2; // Optional: User ID for auth/logging
+  // Indicator name (e.g., "sma", "rsi")
+  string name = 1;
+  // Optional: User ID for auth/logging
+  string user_id = 2;
 }
 
 // Request to get metadata for multiple indicators
 message BatchGetIndicatorMetadataRequest {
-  repeated string names = 1; // List of indicator names
-  string user_id = 2; // Optional: User ID for auth/logging
+  // List of indicator names
+  repeated string names = 1;
+  // Optional: User ID for auth/logging
+  string user_id = 2;
 }
 
 // Response containing metadata for multiple indicators
 message BatchGetIndicatorMetadataResponse {
-  repeated IndicatorMetadataResponse indicators = 1; // Successfully found indicators
-  repeated string not_found = 2; // Indicator names not found
+  // Successfully found indicators
+  repeated IndicatorMetadataResponse indicators = 1;
+  // Indicator names not found
+  repeated string not_found = 2;
 }
 
 // Parameter definition for an indicator
 message Parameter {
+  // Human-readable name.
   string name = 1;
-  string type = 2; // "int", "float", "str", "bool"
+  // "int", "float", "str", "bool"
+  string type = 2;
+  // Description text.
   string description = 3;
+  // Required value.
   bool required = 4;
-  string default_value = 5; // String representation of default value
+  // String representation of default value
+  string default_value = 5;
 
   // Parameter constraints
   ParameterConstraints constraints = 6;
@@ -55,33 +66,49 @@ message Parameter {
 
 // Parameter constraints
 message ParameterConstraints {
-  optional double min = 1; // Minimum value (numeric types)
-  optional double max = 2; // Maximum value (numeric types)
-  optional int32 min_length = 3; // Minimum length (string types)
-  optional int32 max_length = 4; // Maximum length (string types)
-  optional string pattern = 5; // Regex pattern (string types)
+  // Minimum value (numeric types)
+  optional double min = 1;
+  // Maximum value (numeric types)
+  optional double max = 2;
+  // Minimum length (string types)
+  optional int32 min_length = 3;
+  // Maximum length (string types)
+  optional int32 max_length = 4;
+  // Regex pattern (string types)
+  optional string pattern = 5;
 }
 
 // Output column definition
 message OutputColumn {
+  // Human-readable name.
   string name = 1;
-  string type = 2; // "float", "int", "bool"
+  // "float", "int", "bool"
+  string type = 2;
+  // Description text.
   string description = 3;
 }
 
 // Dependency on another indicator
 message Dependency {
+  // Indicator name value.
   string indicator_name = 1;
+  // Reason value.
   string reason = 2;
+  // Is optional flag.
   bool is_optional = 3;
 }
 
 // Complete metadata for an indicator
 message IndicatorMetadataResponse {
+  // Human-readable name.
   string name = 1;
+  // Display name value.
   string display_name = 2;
+  // Description text.
   string description = 3;
-  string category = 4; // "trend", "momentum", "volatility", "volume"
+  // "trend", "momentum", "volatility", "volume"
+  string category = 4;
+  // Associated tags.
   repeated string tags = 5;
 
   // Parameters
@@ -95,11 +122,14 @@ message IndicatorMetadataResponse {
 
   // Calculation requirements
   int32 min_lookback = 9;
-  bool is_overlay = 10; // Whether indicator overlays on price chart
+  // Whether indicator overlays on price chart
+  bool is_overlay = 10;
 
   // Metadata
   string version = 11;
+  // Created at timestamp.
   string created_at = 12;
+  // Updated at timestamp.
   string updated_at = 13;
 }
 
@@ -109,20 +139,30 @@ message IndicatorMetadataResponse {
 
 // Request to calculate a single indicator
 message CalculateIndicatorRequest {
-  string indicator_name = 1; // Indicator name (e.g., "SMA", "RSI")
-  map<string, string> params = 2; // Parameters as key-value pairs (all values as strings)
-  string symbol = 3; // Symbol (e.g., "AAPL", "BTCUSDT")
-  string interval = 4; // Time interval (e.g., "1d", "1h", "5m")
-  string start_date = 5; // Start date (ISO 8601 format)
-  string end_date = 6; // End date (ISO 8601 format)
-  string user_id = 7; // Optional: User ID for auth/logging
+  // Indicator name (e.g., "SMA", "RSI")
+  string indicator_name = 1;
+  // Parameters as key-value pairs (all values as strings)
+  map<string, string> params = 2;
+  // Symbol (e.g., "AAPL", "BTCUSDT")
+  string symbol = 3;
+  // Time interval (e.g., "1d", "1h", "5m")
+  string interval = 4;
+  // Start date (ISO 8601 format)
+  string start_date = 5;
+  // End date (ISO 8601 format)
+  string end_date = 6;
+  // Optional: User ID for auth/logging
+  string user_id = 7;
 }
 
 // Response for single indicator calculation
 message CalculateIndicatorResponse {
+  // Indicator name value.
   string indicator_name = 1;
+  // Params value.
   map<string, string> params = 2;
-  string result_type = 3; // "series", "multi_series", "signal"
+  // "series", "multi_series", "signal"
+  string result_type = 3;
 
   // Single output (for result_type = "series")
   repeated double values = 4;
@@ -133,37 +173,52 @@ message CalculateIndicatorResponse {
   // Signal output (for result_type = "signal")
   repeated string signals = 6;
 
-  repeated string timestamps = 7; // ISO 8601 timestamps
+  // ISO 8601 timestamps
+  repeated string timestamps = 7;
+  // Symbol identifier.
   string symbol = 8;
+  // Interval identifier.
   string interval = 9;
-  bool cached = 10; // Whether result was from cache
+  // Whether result was from cache
+  bool cached = 10;
 }
 
 // Helper message for arrays of doubles
 message DoubleArray {
+  // Values value.
   repeated double values = 1;
 }
 
 // Indicator specification for batch calculation
 message IndicatorSpec {
-  string name = 1; // Indicator name
-  map<string, string> params = 2; // Parameters
+  // Indicator name
+  string name = 1;
+  // Parameters
+  map<string, string> params = 2;
 }
 
 // Request to calculate multiple indicators (batch)
 message BatchCalculateIndicatorsRequest {
+  // Symbol identifier.
   string symbol = 1;
+  // Interval identifier.
   string interval = 2;
+  // Start date value.
   string start_date = 3;
+  // End date value.
   string end_date = 4;
-  repeated IndicatorSpec indicators = 5; // List of indicators to calculate
-  string user_id = 6; // Optional: User ID for auth/logging
+  // List of indicators to calculate
+  repeated IndicatorSpec indicators = 5;
+  // Optional: User ID for auth/logging
+  string user_id = 6;
 }
 
 // Response for batch indicator calculation
 message BatchCalculateIndicatorsResponse {
-  repeated CalculateIndicatorResponse results = 1; // Individual calculation results
-  repeated string timestamps = 2; // Common timestamps for all indicators
+  // Individual calculation results
+  repeated CalculateIndicatorResponse results = 1;
+  // Common timestamps for all indicators
+  repeated string timestamps = 2;
 }
 
 // ============================================================================
@@ -175,9 +230,14 @@ message HealthCheckRequest {}
 
 // Health check response
 message HealthCheckResponse {
-  string status = 1; // "healthy", "degraded", "unhealthy"
-  string service = 2; // Service name
-  string version = 3; // Service version
-  int32 uptime_seconds = 4; // Server uptime
-  int32 cache_size = 5; // Number of indicators in cache
+  // "healthy", "degraded", "unhealthy"
+  string status = 1;
+  // Service name
+  string service = 2;
+  // Service version
+  string version = 3;
+  // Server uptime
+  int32 uptime_seconds = 4;
+  // Number of indicators in cache
+  int32 cache_size = 5;
 }

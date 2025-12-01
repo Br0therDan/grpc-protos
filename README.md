@@ -148,7 +148,7 @@ buf breaking --against '.git#branch=main'
 
 ```bash
 # Generate stubs to verify compilation
-./scripts/generate-python.sh
+python3 scripts/proto_orchestrator.py codegen
 
 # Check generated files
 ls -la generated/mysingle_protos/protos/services/strategy/v1/
@@ -309,11 +309,11 @@ BREAKING CHANGE: Renamed GetStrategy to GetSingleStrategy"
 
 ```bash
 # 1. Update version and generate code
-./scripts/publish-release.sh 1.2.0 "Add indicator metadata RPC"
+python3 scripts/proto_orchestrator.py publish --version 1.2.0 --commit-message "Add indicator metadata RPC"
 
 # This will:
 # - Update version in pyproject.toml to 1.2.0
-# - Run buf generate for Python stubs
+# - Run buf generate for Python stubs (codegen can be skipped via --skip-codegen)
 # - Commit changes with message
 # - Create and push git tag v1.2.0
 # - Trigger GitHub release creation

@@ -7,249 +7,387 @@ import "google/protobuf/timestamp.proto";
 
 // Strategy Service - gRPC API
 // Used by Backtest Service and GenAI Service for high-performance strategy operations
-
+// StrategyService service definition.
 service StrategyService {
   // Get a single strategy version
+  // GetStrategyVersion RPC.
   rpc GetStrategyVersion(GetStrategyVersionRequest) returns (StrategyVersionResponse);
 
   // Batch get multiple strategy versions (streaming response)
+  // BatchGetStrategyVersions RPC.
   rpc BatchGetStrategyVersions(BatchGetStrategyVersionsRequest) returns (stream StrategyVersionResponse);
 
   // Health check
+  // HealthCheck RPC.
   rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
 
   // --- New RPCs for GenAI Service ---
 
   // Validate StrategyIR across multiple stages
+  // ValidateStrategyIR RPC.
   rpc ValidateStrategyIR(ValidateIRRequest) returns (ValidationResponse);
 
   // Get a single strategy template
+  // GetStrategyTemplate RPC.
   rpc GetStrategyTemplate(GetTemplateRequest) returns (TemplateResponse);
 
   // List all accessible templates (streaming)
+  // ListStrategyTemplates RPC.
   rpc ListStrategyTemplates(ListTemplatesRequest) returns (stream TemplateResponse);
 
   // Batch get multiple strategies (streaming)
+  // BatchGetStrategies RPC.
   rpc BatchGetStrategies(BatchGetStrategiesRequest) returns (stream StrategyResponse);
 
   // List user's strategies (auto-discovery by user_id) - NEW
+  // ListUserStrategies RPC.
   rpc ListUserStrategies(ListUserStrategiesRequest) returns (stream StrategyResponse);
 
   // ---- ml-service compatibility RPCs ----
   // These RPCs are required by `ml-service` and added for backward/forward compatibility.
+  // GetStrategy RPC.
   rpc GetStrategy(GetStrategyRequest) returns (GetStrategyResponse);
+  // ListStrategies RPC.
   rpc ListStrategies(ListStrategiesRequest) returns (ListStrategiesResponse);
+  // ValidateStrategy RPC.
   rpc ValidateStrategy(ValidateStrategyRequest) returns (ValidateStrategyResponse);
+  // GetPortfolioSummary RPC.
   rpc GetPortfolioSummary(GetPortfolioSummaryRequest) returns (GetPortfolioSummaryResponse);
 }
 
 // Request Messages
-
+// GetStrategyVersionRequest defines the request payload for GetStrategyVersion.
 message GetStrategyVersionRequest {
-  string strategy_id = 1; // Strategy ID
-  int32 seq = 2; // Version sequence number
-  string user_id = 3; // User ID for authorization
+  // Strategy ID
+  string strategy_id = 1;
+  // Version sequence number
+  int32 seq = 2;
+  // User ID for authorization
+  string user_id = 3;
 }
 
+// BatchGetStrategyVersionsRequest defines the request payload for BatchGetStrategyVersions.
 message BatchGetStrategyVersionsRequest {
+  // Versions value.
   repeated StrategyVersionIdentifier versions = 1;
+  // User identifier for authorization.
   string user_id = 2;
 }
 
+// StrategyVersionIdentifier message definition.
 message StrategyVersionIdentifier {
+  // Strategy identifier.
   string strategy_id = 1;
+  // Version sequence number.
   int32 seq = 2;
 }
 
+// HealthCheckRequest defines the request payload for HealthCheck.
 message HealthCheckRequest {}
 
 // --- New Request Messages for GenAI Service ---
-
+// ValidateIRRequest defines the request payload for ValidateIR.
 message ValidateIRRequest {
+  // User identifier for authorization.
   string user_id = 1;
+  // Strategy ir value.
   google.protobuf.Struct strategy_ir = 2;
-  repeated string stages = 3; // ["STRUCT", "STATIC", "RUNTIME"]
+  // ["STRUCT", "STATIC", "RUNTIME"]
+  repeated string stages = 3;
 }
 
+// GetTemplateRequest defines the request payload for GetTemplate.
 message GetTemplateRequest {
+  // Template identifier.
   string template_id = 1;
+  // User identifier for authorization.
   string user_id = 2;
 }
 
+// ListTemplatesRequest defines the request payload for ListTemplates.
 message ListTemplatesRequest {
+  // User identifier for authorization.
   string user_id = 1;
-  repeated string tags = 2; // Optional filter by tags
-  optional string visibility = 3; // Optional filter: "public", "system", "private"
+  // Optional filter by tags
+  repeated string tags = 2;
+  // Optional filter: "public", "system", "private"
+  optional string visibility = 3;
 }
 
+// BatchGetStrategiesRequest defines the request payload for BatchGetStrategies.
 message BatchGetStrategiesRequest {
+  // List of strategy ids.
   repeated string strategy_ids = 1;
+  // User identifier for authorization.
   string user_id = 2;
 }
 
 // NEW: List user's strategies with pagination and filtering
+// ListUserStrategiesRequest defines the request payload for ListUserStrategies.
 message ListUserStrategiesRequest {
+  // User identifier for authorization.
   string user_id = 1;
-  optional int32 limit = 2; // Default: 50, Max: 100
-  optional int32 offset = 3; // Default: 0
-  optional string status = 4; // Optional filter: "draft", "active", "archived"
-  repeated string tags = 5; // Optional filter by tags
+  // Default: 50, Max: 100
+  optional int32 limit = 2;
+  // Default: 0
+  optional int32 offset = 3;
+  // Optional filter: "draft", "active", "archived"
+  optional string status = 4;
+  // Optional filter by tags
+  repeated string tags = 5;
 }
 
 // Response Messages
-
+// StrategyVersionResponse defines the response payload for StrategyVersion.
 message StrategyVersionResponse {
-  string id = 1; // MongoDB _id
+  // MongoDB _id
+  string id = 1;
+  // User identifier for authorization.
   string user_id = 2;
+  // Strategy identifier.
   string strategy_id = 3;
+  // Version sequence number.
   int32 seq = 4;
-  string state = 5; // DRAFT, VALIDATED, COMPILED, READY_FOR_BACKTEST, INVALID, DEPRECATED
+  // DRAFT, VALIDATED, COMPILED, READY_FOR_BACKTEST, INVALID, DEPRECATED
+  string state = 5;
 
   // Phase 3: DSL Single Source of Truth (v2.0.0)
-  string dsl_code = 6; // Executable DSL code (REQUIRED - single source of truth)
-  string dsl_code_hash = 7; // SHA256 hash for cache invalidation
-  string original_source = 8; // "template" | "graph_ui" | "rule_ui" | "dsl_ui"
+  // Executable DSL code (REQUIRED - single source of truth)
+  string dsl_code = 6;
+  // SHA256 hash for cache invalidation
+  string dsl_code_hash = 7;
+  // "template" | "graph_ui" | "rule_ui" | "dsl_ui"
+  string original_source = 8;
 
   // Frontend rendering caches (optional, generated from dsl_code)
-  optional string graph_cache = 9; // JSON-encoded graph structure for Graph Editor
-  optional string rules_cache = 10; // JSON-encoded rules structure for Rule Builder
+  // JSON-encoded graph structure for Graph Editor
+  optional string graph_cache = 9;
+  // JSON-encoded rules structure for Rule Builder
+  optional string rules_cache = 10;
 
-  optional string template_id = 11; // Template used for instantiation (if any)
+  // Template used for instantiation (if any)
+  optional string template_id = 11;
 
   // Validation results
   repeated ValidationResult validation_pipeline = 12;
 
   // Timestamps
-  string created_at = 13; // ISO 8601 format
-  string updated_at = 14; // ISO 8601 format
+  // ISO 8601 format
+  string created_at = 13;
+  // ISO 8601 format
+  string updated_at = 14;
 }
 
+// ValidationResult message definition.
 message ValidationResult {
-  string stage = 1; // STRUCT, STATIC, TYPE_INFERENCE, COMPILE, FINALIZE
-  string status = 2; // PENDING, PASS, FAIL
+  // STRUCT, STATIC, TYPE_INFERENCE, COMPILE, FINALIZE
+  string stage = 1;
+  // PENDING, PASS, FAIL
+  string status = 2;
+  // Collection of errors.
   repeated string errors = 3;
+  // Collection of warnings.
   repeated string warnings = 4;
+  // Timestamp value.
   optional string timestamp = 5;
 }
 
+// HealthCheckResponse defines the response payload for HealthCheck.
 message HealthCheckResponse {
-  string status = 1; // "healthy"
-  string service = 2; // "strategy-service"
+  // "healthy"
+  string status = 1;
+  // "strategy-service"
+  string service = 2;
+  // Semantic version string.
   string version = 3;
 }
 
 // --- New Response Messages for GenAI Service ---
-
+// ValidationResponse defines the response payload for Validation.
 message ValidationResponse {
+  // Is valid flag.
   bool is_valid = 1;
+  // Collection of errors.
   repeated ValidationError errors = 2;
+  // Collection of warnings.
   repeated ValidationWarning warnings = 3;
-  string stage = 4; // Comma-separated stages executed
+  // Comma-separated stages executed
+  string stage = 4;
 }
 
+// ValidationError message definition.
 message ValidationError {
+  // Code value.
   string code = 1;
+  // Message value.
   string message = 2;
+  // Field path value.
   string field_path = 3;
+  // Metadata value.
   map<string, string> metadata = 4;
 }
 
+// ValidationWarning message definition.
 message ValidationWarning {
+  // Code value.
   string code = 1;
+  // Message value.
   string message = 2;
+  // Field path value.
   optional string field_path = 3;
 }
 
+// TemplateResponse defines the response payload for Template.
 message TemplateResponse {
+  // Unique identifier.
   string id = 1;
+  // User identifier for authorization.
   string user_id = 2;
+  // Human-readable name.
   string name = 3;
+  // Description text.
   string description = 4;
-  string visibility = 5; // "public" | "system" | "private"
+  // "public" | "system" | "private"
+  string visibility = 5;
+  // Associated tags.
   repeated string tags = 6;
 
   // Phase 3: DSL Single Source
-  string default_dsl = 7; // Pre-generated DSL code (REQUIRED for templates)
+  // Pre-generated DSL code (REQUIRED for templates)
+  string default_dsl = 7;
 
+  // Default execution profile value.
   optional google.protobuf.Struct default_execution_profile = 8;
+  // Created at timestamp.
   string created_at = 9;
+  // Updated at timestamp.
   string updated_at = 10;
 }
 
+// StrategyResponse defines the response payload for Strategy.
 message StrategyResponse {
+  // Unique identifier.
   string id = 1;
+  // User identifier for authorization.
   string user_id = 2;
+  // Human-readable name.
   string name = 3;
+  // Description text.
   string description = 4;
-  string status = 5; // "draft" | "active" | "archived"
+  // "draft" | "active" | "archived"
+  string status = 5;
+  // Associated tags.
   repeated string tags = 6;
+  // Created at timestamp.
   string created_at = 7;
+  // Updated at timestamp.
   string updated_at = 8;
 }
 
 // --- ml-service compatibility Messages ---
-
+// GetStrategyRequest defines the request payload for GetStrategy.
 message GetStrategyRequest {
+  // Strategy identifier.
   string strategy_id = 1;
+  // User identifier for authorization.
   string user_id = 2;
 }
 
+// Strategy message definition.
 message Strategy {
+  // Unique identifier.
   string id = 1;
+  // Human-readable name.
   string name = 2;
+  // Description text.
   string description = 3;
+  // User identifier for authorization.
   string user_id = 4;
+  // Is active flag.
   bool is_active = 5;
 }
 
+// GetStrategyResponse defines the response payload for GetStrategy.
 message GetStrategyResponse {
+  // Strategy value.
   Strategy strategy = 1;
 }
 
+// ListStrategiesRequest defines the request payload for ListStrategies.
 message ListStrategiesRequest {
+  // User identifier for authorization.
   string user_id = 1;
+  // Is active flag.
   bool is_active = 2;
+  // Pagination limit.
   int32 limit = 3;
+  // Pagination offset.
   int32 skip = 4;
 }
 
+// ListStrategiesResponse defines the response payload for ListStrategies.
 message ListStrategiesResponse {
+  // Strategies value.
   repeated Strategy strategies = 1;
+  // Total count.
   int32 total = 2;
 }
 
+// ValidateStrategyRequest defines the request payload for ValidateStrategy.
 message ValidateStrategyRequest {
+  // Strategy identifier.
   string strategy_id = 1;
+  // User identifier for authorization.
   string user_id = 2;
 }
 
+// ValidateStrategyResponse defines the response payload for ValidateStrategy.
 message ValidateStrategyResponse {
+  // Is valid flag.
   bool is_valid = 1;
+  // Collection of errors.
   repeated string errors = 2;
+  // Collection of warnings.
   repeated string warnings = 3;
 }
 
+// Position message definition.
 message Position {
+  // Symbol identifier.
   string symbol = 1;
+  // Quantity value.
   double quantity = 2;
+  // Value value.
   double value = 3;
 }
 
+// PortfolioHistoryPoint message definition.
 message PortfolioHistoryPoint {
+  // Timestamp value.
   google.protobuf.Timestamp timestamp = 1;
+  // Value value.
   double value = 2;
 }
 
+// GetPortfolioSummaryRequest defines the request payload for GetPortfolioSummary.
 message GetPortfolioSummaryRequest {
+  // Strategy identifier.
   string strategy_id = 1;
+  // User identifier for authorization.
   string user_id = 2;
 }
 
+// GetPortfolioSummaryResponse defines the response payload for GetPortfolioSummary.
 message GetPortfolioSummaryResponse {
+  // Strategy identifier.
   string strategy_id = 1;
+  // Total value.
   double total_value = 2;
+  // Positions value.
   repeated Position positions = 3;
+  // History value.
   repeated PortfolioHistoryPoint history = 4;
+  // Currency code.
   string currency = 5;
 }
 

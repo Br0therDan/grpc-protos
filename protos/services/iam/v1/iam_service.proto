@@ -1,0 +1,4 @@
+syntax = "proto3";
+
+// Placeholder proto for iam-service. Updated by proto_orchestrator.py.
+package iam_placeholder;

@@ -13,833 +13,1422 @@ package market_data;
 // ============================================================================
 
 // Standard OHLCV bar structure used across all asset classes
+// OHLCVBar message definition.
 message OHLCVBar {
-  string timestamp = 1; // ISO 8601 format timestamp
+  // ISO 8601 format timestamp
+  string timestamp = 1;
+  // Open value.
   double open = 2;
+  // High value.
   double high = 3;
+  // Low value.
   double low = 4;
+  // Close value.
   double close = 5;
+  // Volume value.
   int64 volume = 6;
+  // Adjusted close value.
   optional double adjusted_close = 7;
+  // Dividend amount value.
   optional double dividend_amount = 8;
+  // Split coefficient value.
   optional double split_coefficient = 9;
 }
 
 // Pagination metadata
+// Pagination message definition.
 message Pagination {
+  // Page value.
   int32 page = 1;
+  // Page size value.
   int32 page_size = 2;
+  // Total count.
   int32 total = 3;
+  // Total pages value.
   int32 total_pages = 4;
 }
 
 // ============================================================================
 // Stock Domain Messages & Service
 // ============================================================================
-
+// GetDailyOHLCVRequest defines the request payload for GetDailyOHLCV.
 message GetDailyOHLCVRequest {
+  // Symbol identifier.
   string symbol = 1;
-  optional string start_date = 2; // YYYY-MM-DD
-  optional string end_date = 3; // YYYY-MM-DD
-  optional string outputsize = 4; // "compact" or "full"
-  optional bool adjusted = 5; // Include adjusted close
+  // YYYY-MM-DD
+  optional string start_date = 2;
+  // YYYY-MM-DD
+  optional string end_date = 3;
+  // "compact" or "full"
+  optional string outputsize = 4;
+  // Include adjusted close
+  optional bool adjusted = 5;
 }
 
+// GetIntradayOHLCVRequest defines the request payload for GetIntradayOHLCV.
 message GetIntradayOHLCVRequest {
+  // Symbol identifier.
   string symbol = 1;
-  optional string interval = 2; // "1min", "5min", "15min", "30min", "60min"
+  // "1min", "5min", "15min", "30min", "60min"
+  optional string interval = 2;
+  // Start date value.
   optional string start_date = 3;
+  // End date value.
   optional string end_date = 4;
+  // Outputsize value.
   optional string outputsize = 5;
+  // Adjusted value.
   optional bool adjusted = 6;
-  optional string month = 7; // YYYY-MM format for specific month
+  // YYYY-MM format for specific month
+  optional string month = 7;
 }
 
+// GetWeeklyOHLCVRequest defines the request payload for GetWeeklyOHLCV.
 message GetWeeklyOHLCVRequest {
+  // Symbol identifier.
   string symbol = 1;
+  // Start date value.
   optional string start_date = 2;
+  // End date value.
   optional string end_date = 3;
+  // Adjusted value.
   optional bool adjusted = 4;
 }
 
+// GetMonthlyOHLCVRequest defines the request payload for GetMonthlyOHLCV.
 message GetMonthlyOHLCVRequest {
+  // Symbol identifier.
   string symbol = 1;
+  // Start date value.
   optional string start_date = 2;
+  // End date value.
   optional string end_date = 3;
+  // Adjusted value.
   optional bool adjusted = 4;
 }
 
+// OHLCVResponse defines the response payload for OHLCV.
 message OHLCVResponse {
+  // Symbol identifier.
   string symbol = 1;
-  string interval = 2; // "1d", "1w", "1mo", "5min", etc.
+  // "1d", "1w", "1mo", "5min", etc.
+  string interval = 2;
+  // Bars value.
   repeated OHLCVBar bars = 3;
+  // Count value.
   int32 count = 4;
+  // Cache indicator.
   bool cached = 5;
-  string source = 6; // "alpha_vantage", "yahoo_finance", etc.
+  // "alpha_vantage", "yahoo_finance", etc.
+  string source = 6;
+  // Cache timestamp.
   optional string cache_timestamp = 7;
 }
 
+// GetQuoteRequest defines the request payload for GetQuote.
 message GetQuoteRequest {
+  // Symbol identifier.
   string symbol = 1;
 }
 
+// QuoteData message definition.
 message QuoteData {
+  // Symbol identifier.
   string symbol = 1;
+  // Open value.
   double open = 2;
+  // High value.
   double high = 3;
+  // Low value.
   double low = 4;
+  // Price value.
   double price = 5;
+  // Volume value.
   int64 volume = 6;
+  // Latest trading day value.
   string latest_trading_day = 7;
+  // Previous close value.
   double previous_close = 8;
+  // Change value.
   double change = 9;
+  // Change percent value.
   double change_percent = 10;
 }
 
+// QuoteResponse defines the response payload for Quote.
 message QuoteResponse {
+  // Quote value.
   QuoteData quote = 1;
+  // Cache indicator.
   bool cached = 2;
+  // Cache timestamp.
   optional string cache_timestamp = 3;
 }
 
+// SearchSymbolsRequest defines the request payload for SearchSymbols.
 message SearchSymbolsRequest {
+  // Keywords value.
   string keywords = 1;
 }
 
+// SymbolSearchResult message definition.
 message SymbolSearchResult {
+  // Symbol identifier.
   string symbol = 1;
+  // Human-readable name.
   string name = 2;
+  // Type value.
   string type = 3;
+  // Region value.
   string region = 4;
+  // Market open value.
   string market_open = 5;
+  // Market close value.
   string market_close = 6;
+  // Timezone value.
   string timezone = 7;
+  // Currency code.
   string currency = 8;
+  // Match score score.
   double match_score = 9;
 }
 
+// SearchSymbolsResponse defines the response payload for SearchSymbols.
 message SearchSymbolsResponse {
+  // Results value.
   repeated SymbolSearchResult results = 1;
+  // Count value.
   int32 count = 2;
 }
 
 // Batch request for multiple symbols (for Strategy/Backtest services)
+// BatchGetDailyOHLCVRequest defines the request payload for BatchGetDailyOHLCV.
 message BatchGetDailyOHLCVRequest {
-  repeated string symbols = 1; // Multiple symbols to fetch
-  optional string start_date = 2; // YYYY-MM-DD
-  optional string end_date = 3; // YYYY-MM-DD
-  optional bool adjusted = 4; // Include adjusted close
+  // Multiple symbols to fetch
+  repeated string symbols = 1;
+  // YYYY-MM-DD
+  optional string start_date = 2;
+  // YYYY-MM-DD
+  optional string end_date = 3;
+  // Include adjusted close
+  optional bool adjusted = 4;
 }
 
+// SymbolOHLCVData message definition.
 message SymbolOHLCVData {
+  // Symbol identifier.
   string symbol = 1;
+  // Bars value.
   repeated OHLCVBar bars = 2;
+  // Count value.
   int32 count = 3;
+  // Cache indicator.
   bool cached = 4;
-  optional string error = 5; // Error message if fetch failed
+  // Error message if fetch failed
+  optional string error = 5;
 }
 
+// BatchGetDailyOHLCVResponse defines the response payload for BatchGetDailyOHLCV.
 message BatchGetDailyOHLCVResponse {
+  // Data value.
   repeated SymbolOHLCVData data = 1;
+  // Total symbols value.
   int32 total_symbols = 2;
+  // Success count count.
   int32 success_count = 3;
+  // Error count count.
   int32 error_count = 4;
 }
 
+// BatchGetQuoteRequest defines the request payload for BatchGetQuote.
 message BatchGetQuoteRequest {
-  repeated string symbols = 1; // Multiple symbols to fetch
+  // Multiple symbols to fetch
+  repeated string symbols = 1;
 }
 
+// SymbolQuoteData message definition.
 message SymbolQuoteData {
+  // Symbol identifier.
   string symbol = 1;
+  // Quote value.
   optional QuoteData quote = 2;
+  // Cache indicator.
   bool cached = 3;
-  optional string error = 4; // Error message if fetch failed
+  // Error message if fetch failed
+  optional string error = 4;
 }
 
+// BatchGetQuoteResponse defines the response payload for BatchGetQuote.
 message BatchGetQuoteResponse {
+  // Data value.
   repeated SymbolQuoteData data = 1;
+  // Total symbols value.
   int32 total_symbols = 2;
+  // Success count count.
   int32 success_count = 3;
+  // Error count count.
   int32 error_count = 4;
 }
 
 // ============================================================================
 // Forex Domain Messages & Service
 // ============================================================================
-
+// GetForexDailyRequest defines the request payload for GetForexDaily.
 message GetForexDailyRequest {
+  // From symbol value.
   string from_symbol = 1;
+  // To symbol value.
   string to_symbol = 2;
+  // Start date value.
   optional string start_date = 3;
+  // End date value.
   optional string end_date = 4;
+  // Outputsize value.
   optional string outputsize = 5;
 }
 
+// GetForexIntradayRequest defines the request payload for GetForexIntraday.
 message GetForexIntradayRequest {
+  // From symbol value.
   string from_symbol = 1;
+  // To symbol value.
   string to_symbol = 2;
+  // Interval identifier.
   optional string interval = 3;
+  // Start date value.
   optional string start_date = 4;
+  // End date value.
   optional string end_date = 5;
+  // Outputsize value.
   optional string outputsize = 6;
 }
 
+// GetForexWeeklyRequest defines the request payload for GetForexWeekly.
 message GetForexWeeklyRequest {
+  // From symbol value.
   string from_symbol = 1;
+  // To symbol value.
   string to_symbol = 2;
+  // Start date value.
   optional string start_date = 3;
+  // End date value.
   optional string end_date = 4;
 }
 
+// GetForexMonthlyRequest defines the request payload for GetForexMonthly.
 message GetForexMonthlyRequest {
+  // From symbol value.
   string from_symbol = 1;
+  // To symbol value.
   string to_symbol = 2;
+  // Start date value.
   optional string start_date = 3;
+  // End date value.
   optional string end_date = 4;
 }
 
+// ForexResponse defines the response payload for Forex.
 message ForexResponse {
+  // From symbol value.
   string from_symbol = 1;
+  // To symbol value.
   string to_symbol = 2;
+  // Interval identifier.
   string interval = 3;
+  // Bars value.
   repeated OHLCVBar bars = 4;
+  // Count value.
   int32 count = 5;
+  // Cache indicator.
   bool cached = 6;
+  // Cache timestamp.
   optional string cache_timestamp = 7;
 }
 
+// GetForexRateRequest defines the request payload for GetForexRate.
 message GetForexRateRequest {
+  // From currency value.
   string from_currency = 1;
+  // To currency value.
   string to_currency = 2;
 }
 
+// ForexRateData message definition.
 message ForexRateData {
+  // From currency code value.
   string from_currency_code = 1;
+  // From currency name value.
   string from_currency_name = 2;
+  // To currency code value.
   string to_currency_code = 3;
+  // To currency name value.
   string to_currency_name = 4;
+  // Exchange rate value.
   double exchange_rate = 5;
+  // Last refreshed value.
   string last_refreshed = 6;
+  // Time zone value.
   string time_zone = 7;
+  // Bid price value.
   double bid_price = 8;
+  // Ask price value.
   double ask_price = 9;
 }
 
+// ForexRateResponse defines the response payload for ForexRate.
 message ForexRateResponse {
+  // Rate value.
   ForexRateData rate = 1;
+  // Cache indicator.
   bool cached = 2;
+  // Cache timestamp.
   optional string cache_timestamp = 3;
 }
 
+// ListForexPairsRequest defines the request payload for ListForexPairs.
 message ListForexPairsRequest {
   // Empty request for listing all available pairs
 }
 
+// ForexPair message definition.
 message ForexPair {
+  // From symbol value.
   string from_symbol = 1;
+  // To symbol value.
   string to_symbol = 2;
+  // Human-readable name.
   string name = 3;
 }
 
+// ListForexPairsResponse defines the response payload for ListForexPairs.
 message ListForexPairsResponse {
+  // Pairs value.
   repeated ForexPair pairs = 1;
+  // Count value.
   int32 count = 2;
 }
 
 // ============================================================================
 // Crypto Domain Messages & Service
 // ============================================================================
-
+// GetCryptoDailyRequest defines the request payload for GetCryptoDaily.
 message GetCryptoDailyRequest {
+  // Symbol identifier.
   string symbol = 1;
-  string market = 2; // e.g., "USD"
+  // e.g., "USD"
+  string market = 2;
+  // Start date value.
   optional string start_date = 3;
+  // End date value.
   optional string end_date = 4;
 }
 
+// GetCryptoIntradayRequest defines the request payload for GetCryptoIntraday.
 message GetCryptoIntradayRequest {
+  // Symbol identifier.
   string symbol = 1;
+  // Market value.
   string market = 2;
+  // Interval identifier.
   optional string interval = 3;
+  // Start date value.
   optional string start_date = 4;
+  // End date value.
   optional string end_date = 5;
+  // Outputsize value.
   optional string outputsize = 6;
 }
 
+// GetCryptoWeeklyRequest defines the request payload for GetCryptoWeekly.
 message GetCryptoWeeklyRequest {
+  // Symbol identifier.
   string symbol = 1;
+  // Market value.
   string market = 2;
+  // Start date value.
   optional string start_date = 3;
+  // End date value.
   optional string end_date = 4;
 }
 
+// GetCryptoMonthlyRequest defines the request payload for GetCryptoMonthly.
 message GetCryptoMonthlyRequest {
+  // Symbol identifier.
   string symbol = 1;
+  // Market value.
   string market = 2;
+  // Start date value.
   optional string start_date = 3;
+  // End date value.
   optional string end_date = 4;
 }
 
+// CryptoResponse defines the response payload for Crypto.
 message CryptoResponse {
+  // Symbol identifier.
   string symbol = 1;
+  // Market value.
   string market = 2;
+  // Interval identifier.
   string interval = 3;
+  // Bars value.
   repeated OHLCVBar bars = 4;
+  // Count value.
   int32 count = 5;
+  // Cache indicator.
   bool cached = 6;
+  // Cache timestamp.
   optional string cache_timestamp = 7;
 }
 
+// ListCryptoSymbolsRequest defines the request payload for ListCryptoSymbols.
 message ListCryptoSymbolsRequest {
   // Empty request for listing all available crypto symbols
 }
 
+// CryptoSymbol message definition.
 message CryptoSymbol {
+  // Symbol identifier.
   string symbol = 1;
+  // Human-readable name.
   string name = 2;
 }
 
+// ListCryptoSymbolsResponse defines the response payload for ListCryptoSymbols.
 message ListCryptoSymbolsResponse {
+  // Symbols value.
   repeated CryptoSymbol symbols = 1;
+  // Count value.
   int32 count = 2;
 }
 
+// BatchCryptoQuoteRequest defines the request payload for BatchCryptoQuote.
 message BatchCryptoQuoteRequest {
+  // Symbols value.
   repeated string symbols = 1;
+  // Market value.
   string market = 2;
 }
 
+// CryptoQuoteData message definition.
 message CryptoQuoteData {
+  // Symbol identifier.
   string symbol = 1;
+  // Market value.
   string market = 2;
+  // Price value.
   double price = 3;
+  // Volume value.
   int64 volume = 4;
+  // Change percent value.
   double change_percent = 5;
+  // Last updated value.
   string last_updated = 6;
 }
 
+// BatchCryptoQuoteResponse defines the response payload for BatchCryptoQuote.
 message BatchCryptoQuoteResponse {
+  // Quotes value.
   repeated CryptoQuoteData quotes = 1;
+  // Count value.
   int32 count = 2;
 }
 
 // ============================================================================
 // Fundamental Domain Messages & Service
 // ============================================================================
-
+// GetCompanyOverviewRequest defines the request payload for GetCompanyOverview.
 message GetCompanyOverviewRequest {
+  // Symbol identifier.
   string symbol = 1;
 }
 
+// CompanyOverview message definition.
 message CompanyOverview {
+  // Symbol identifier.
   string symbol = 1;
+  // Asset type value.
   string asset_type = 2;
+  // Human-readable name.
   string name = 3;
+  // Description text.
   string description = 4;
+  // Cik value.
   string cik = 5;
+  // Exchange value.
   string exchange = 6;
+  // Currency code.
   string currency = 7;
+  // Country value.
   string country = 8;
+  // Sector value.
   string sector = 9;
+  // Industry value.
   string industry = 10;
+  // Address value.
   string address = 11;
+  // Fiscal year end value.
   string fiscal_year_end = 12;
+  // Latest quarter value.
   string latest_quarter = 13;
+  // Market capitalization value.
   int64 market_capitalization = 14;
+  // Ebitda value.
   string ebitda = 15;
+  // Pe ratio ratio.
   double pe_ratio = 16;
+  // Peg ratio ratio.
   double peg_ratio = 17;
+  // Book value.
   double book_value = 18;
+  // Dividend per share value.
   double dividend_per_share = 19;
+  // Dividend yield value.
   double dividend_yield = 20;
+  // Eps value.
   double eps = 21;
+  // Revenue per share ttm value.
   double revenue_per_share_ttm = 22;
+  // Profit margin value.
   double profit_margin = 23;
+  // Operating margin ttm value.
   double operating_margin_ttm = 24;
+  // Return on assets ttm value.
   double return_on_assets_ttm = 25;
+  // Return on equity ttm value.
   double return_on_equity_ttm = 26;
+  // Revenue ttm value.
   double revenue_ttm = 27;
+  // Gross profit ttm value.
   double gross_profit_ttm = 28;
+  // Diluted eps ttm value.
   double diluted_eps_ttm = 29;
+  // Quarterly earnings growth yoy value.
   double quarterly_earnings_growth_yoy = 30;
+  // Quarterly revenue growth yoy value.
   double quarterly_revenue_growth_yoy = 31;
+  // Analyst target price value.
   double analyst_target_price = 32;
+  // Trailing pe value.
   double trailing_pe = 33;
+  // Forward pe value.
   double forward_pe = 34;
+  // Price to sales ratio ttm value.
   double price_to_sales_ratio_ttm = 35;
+  // Price to book ratio ratio.
   double price_to_book_ratio = 36;
+  // Ev to revenue value.
   double ev_to_revenue = 37;
+  // Ev to ebitda value.
   double ev_to_ebitda = 38;
+  // Beta value.
   double beta = 39;
+  // Week 52 high value.
   string week_52_high = 40;
+  // Week 52 low value.
   string week_52_low = 41;
+  // Day 50 moving average value.
   string day_50_moving_average = 42;
+  // Day 200 moving average value.
   string day_200_moving_average = 43;
+  // Shares outstanding value.
   int64 shares_outstanding = 44;
+  // Dividend date value.
   string dividend_date = 45;
+  // Ex dividend date value.
   string ex_dividend_date = 46;
 }
 
+// CompanyOverviewResponse defines the response payload for CompanyOverview.
 message CompanyOverviewResponse {
+  // Overview value.
   CompanyOverview overview = 1;
+  // Cache indicator.
   bool cached = 2;
+  // Cache timestamp.
   optional string cache_timestamp = 3;
 }
 
+// GetIncomeStatementRequest defines the request payload for GetIncomeStatement.
 message GetIncomeStatementRequest {
+  // Symbol identifier.
   string symbol = 1;
 }
 
+// IncomeStatement message definition.
 message IncomeStatement {
+  // Fiscal date ending value.
   string fiscal_date_ending = 1;
+  // Reported currency value.
   string reported_currency = 2;
+  // Gross profit value.
   int64 gross_profit = 3;
+  // Total revenue value.
   int64 total_revenue = 4;
+  // Cost of revenue value.
   int64 cost_of_revenue = 5;
+  // Cost of goods and services sold value.
   int64 cost_of_goods_and_services_sold = 6;
+  // Operating income value.
   int64 operating_income = 7;
+  // Selling general and administrative value.
   int64 selling_general_and_administrative = 8;
+  // Research and development value.
   int64 research_and_development = 9;
+  // Operating expenses value.
   int64 operating_expenses = 10;
+  // Investment income net value.
   int64 investment_income_net = 11;
+  // Net interest income value.
   int64 net_interest_income = 12;
+  // Interest income value.
   int64 interest_income = 13;
+  // Interest expense value.
   int64 interest_expense = 14;
+  // Non interest income value.
   int64 non_interest_income = 15;
+  // Other non operating income value.
   int64 other_non_operating_income = 16;
+  // Depreciation value.
   int64 depreciation = 17;
+  // Depreciation and amortization value.
   int64 depreciation_and_amortization = 18;
+  // Income before tax value.
   int64 income_before_tax = 19;
+  // Income tax expense value.
   int64 income_tax_expense = 20;
+  // Interest and debt expense value.
   int64 interest_and_debt_expense = 21;
+  // Net income from continuing operations value.
   int64 net_income_from_continuing_operations = 22;
+  // Comprehensive income net of tax value.
   int64 comprehensive_income_net_of_tax = 23;
+  // Ebit value.
   int64 ebit = 24;
+  // Ebitda value.
   int64 ebitda = 25;
+  // Net income value.
   int64 net_income = 26;
 }
 
+// IncomeStatementResponse defines the response payload for IncomeStatement.
 message IncomeStatementResponse {
+  // Symbol identifier.
   string symbol = 1;
+  // Annual reports value.
   repeated IncomeStatement annual_reports = 2;
+  // Quarterly reports value.
   repeated IncomeStatement quarterly_reports = 3;
+  // Cache indicator.
   bool cached = 4;
+  // Cache timestamp.
   optional string cache_timestamp = 5;
 }
 
+// GetBalanceSheetRequest defines the request payload for GetBalanceSheet.
 message GetBalanceSheetRequest {
+  // Symbol identifier.
   string symbol = 1;
 }
 
+// BalanceSheet message definition.
 message BalanceSheet {
+  // Fiscal date ending value.
   string fiscal_date_ending = 1;
+  // Reported currency value.
   string reported_currency = 2;
+  // Total assets value.
   int64 total_assets = 3;
+  // Total current assets value.
   int64 total_current_assets = 4;
+  // Cash and cash equivalents at carrying value.
   int64 cash_and_cash_equivalents_at_carrying_value = 5;
+  // Cash and short term investments value.
   int64 cash_and_short_term_investments = 6;
+  // Inventory value.
   int64 inventory = 7;
+  // Current net receivables value.
   int64 current_net_receivables = 8;
+  // Total non current assets value.
   int64 total_non_current_assets = 9;
+  // Property plant equipment value.
   int64 property_plant_equipment = 10;
+  // Accumulated depreciation amortization ppe value.
   int64 accumulated_depreciation_amortization_ppe = 11;
+  // Intangible assets value.
   int64 intangible_assets = 12;
+  // Intangible assets excluding goodwill value.
   int64 intangible_assets_excluding_goodwill = 13;
+  // Goodwill value.
   int64 goodwill = 14;
+  // Investments value.
   int64 investments = 15;
+  // Long term investments value.
   int64 long_term_investments = 16;
+  // Short term investments value.
   int64 short_term_investments = 17;
+  // Other current assets value.
   int64 other_current_assets = 18;
+  // Other non current assets value.
   int64 other_non_current_assets = 19;
+  // Total liabilities value.
   int64 total_liabilities = 20;
+  // Total current liabilities value.
   int64 total_current_liabilities = 21;
+  // Current accounts payable value.
   int64 current_accounts_payable = 22;
+  // Deferred revenue value.
   int64 deferred_revenue = 23;
+  // Current debt value.
   int64 current_debt = 24;
+  // Short term debt value.
   int64 short_term_debt = 25;
+  // Total non current liabilities value.
   int64 total_non_current_liabilities = 26;
+  // Capital lease obligations value.
   int64 capital_lease_obligations = 27;
+  // Long term debt value.
   int64 long_term_debt = 28;
+  // Current long term debt value.
   int64 current_long_term_debt = 29;
+  // Long term debt noncurrent value.
   int64 long_term_debt_noncurrent = 30;
+  // Short long term debt total value.
   int64 short_long_term_debt_total = 31;
+  // Other current liabilities value.
   int64 other_current_liabilities = 32;
+  // Other non current liabilities value.
   int64 other_non_current_liabilities = 33;
+  // Total shareholder equity value.
   int64 total_shareholder_equity = 34;
+  // Treasury stock value.
   int64 treasury_stock = 35;
+  // Retained earnings value.
   int64 retained_earnings = 36;
+  // Common stock value.
   int64 common_stock = 37;
+  // Common stock shares outstanding value.
   int64 common_stock_shares_outstanding = 38;
 }
 
+// BalanceSheetResponse defines the response payload for BalanceSheet.
 message BalanceSheetResponse {
+  // Symbol identifier.
   string symbol = 1;
+  // Annual reports value.
   repeated BalanceSheet annual_reports = 2;
+  // Quarterly reports value.
   repeated BalanceSheet quarterly_reports = 3;
+  // Cache indicator.
   bool cached = 4;
+  // Cache timestamp.
   optional string cache_timestamp = 5;
 }
 
+// GetCashFlowRequest defines the request payload for GetCashFlow.
 message GetCashFlowRequest {
+  // Symbol identifier.
   string symbol = 1;
 }
 
+// CashFlow message definition.
 message CashFlow {
+  // Fiscal date ending value.
   string fiscal_date_ending = 1;
+  // Reported currency value.
   string reported_currency = 2;
+  // Operating cashflow value.
   int64 operating_cashflow = 3;
+  // Payments for operating activities value.
   int64 payments_for_operating_activities = 4;
+  // Proceeds from operating activities value.
   int64 proceeds_from_operating_activities = 5;
+  // Change in operating liabilities value.
   int64 change_in_operating_liabilities = 6;
+  // Change in operating assets value.
   int64 change_in_operating_assets = 7;
+  // Depreciation depletion and amortization value.
   int64 depreciation_depletion_and_amortization = 8;
+  // Capital expenditures value.
   int64 capital_expenditures = 9;
+  // Change in receivables value.
   int64 change_in_receivables = 10;
+  // Change in inventory value.
   int64 change_in_inventory = 11;
+  // Profit loss value.
   int64 profit_loss = 12;
+  // Cashflow from investment value.
   int64 cashflow_from_investment = 13;
+  // Cashflow from financing value.
   int64 cashflow_from_financing = 14;
+  // Proceeds from repayments of short term debt value.
   int64 proceeds_from_repayments_of_short_term_debt = 15;
+  // Payments for repurchase of common stock value.
   int64 payments_for_repurchase_of_common_stock = 16;
+  // Payments for repurchase of equity value.
   int64 payments_for_repurchase_of_equity = 17;
+  // Payments for repurchase of preferred stock value.
   int64 payments_for_repurchase_of_preferred_stock = 18;
+  // Dividend payout value.
   int64 dividend_payout = 19;
+  // Dividend payout common stock value.
   int64 dividend_payout_common_stock = 20;
+  // Dividend payout preferred stock value.
   int64 dividend_payout_preferred_stock = 21;
+  // Proceeds from issuance of common stock value.
   int64 proceeds_from_issuance_of_common_stock = 22;
+  // Proceeds from issuance of long term debt and capital securities net value.
   int64 proceeds_from_issuance_of_long_term_debt_and_capital_securities_net = 23;
+  // Proceeds from issuance of preferred stock value.
   int64 proceeds_from_issuance_of_preferred_stock = 24;
+  // Proceeds from repurchase of equity value.
   int64 proceeds_from_repurchase_of_equity = 25;
+  // Proceeds from sale of treasury stock value.
   int64 proceeds_from_sale_of_treasury_stock = 26;
+  // Change in cash and cash equivalents value.
   int64 change_in_cash_and_cash_equivalents = 27;
+  // Change in exchange rate value.
   int64 change_in_exchange_rate = 28;
+  // Net income value.
   int64 net_income = 29;
 }
 
+// CashFlowResponse defines the response payload for CashFlow.
 message CashFlowResponse {
+  // Symbol identifier.
   string symbol = 1;
+  // Annual reports value.
   repeated CashFlow annual_reports = 2;
+  // Quarterly reports value.
   repeated CashFlow quarterly_reports = 3;
+  // Cache indicator.
   bool cached = 4;
+  // Cache timestamp.
   optional string cache_timestamp = 5;
 }
 
+// GetEarningsRequest defines the request payload for GetEarnings.
 message GetEarningsRequest {
+  // Symbol identifier.
   string symbol = 1;
 }
 
+// EarningsData message definition.
 message EarningsData {
+  // Fiscal date ending value.
   string fiscal_date_ending = 1;
+  // Reported eps value.
   double reported_eps = 2;
+  // Estimated eps value.
   optional double estimated_eps = 3;
+  // Surprise value.
   optional double surprise = 4;
+  // Surprise percentage value.
   optional double surprise_percentage = 5;
 }
 
+// EarningsResponse defines the response payload for Earnings.
 message EarningsResponse {
+  // Symbol identifier.
   string symbol = 1;
+  // Annual earnings value.
   repeated EarningsData annual_earnings = 2;
+  // Quarterly earnings value.
   repeated EarningsData quarterly_earnings = 3;
+  // Cache indicator.
   bool cached = 4;
+  // Cache timestamp.
   optional string cache_timestamp = 5;
 }
 
+// GetEarningsCalendarRequest defines the request payload for GetEarningsCalendar.
 message GetEarningsCalendarRequest {
+  // Symbol identifier.
   optional string symbol = 1;
-  optional string horizon = 2; // "3month", "6month", "12month"
+  // "3month", "6month", "12month"
+  optional string horizon = 2;
 }
 
+// EarningsCalendarEvent message definition.
 message EarningsCalendarEvent {
+  // Symbol identifier.
   string symbol = 1;
+  // Human-readable name.
   string name = 2;
+  // Report date value.
   string report_date = 3;
+  // Fiscal date ending value.
   optional double fiscal_date_ending = 4;
+  // Estimate value.
   optional double estimate = 5;
+  // Currency code.
   string currency = 6;
 }
 
+// EarningsCalendarResponse defines the response payload for EarningsCalendar.
 message EarningsCalendarResponse {
+  // Events value.
   repeated EarningsCalendarEvent events = 1;
+  // Count value.
   int32 count = 2;
+  // Cache indicator.
   bool cached = 3;
+  // Cache timestamp.
   optional string cache_timestamp = 4;
 }
 
+// GetIPOCalendarRequest defines the request payload for GetIPOCalendar.
 message GetIPOCalendarRequest {
   // Empty for now, can add date range filters
 }
 
+// IPOEvent message definition.
 message IPOEvent {
+  // Symbol identifier.
   string symbol = 1;
+  // Human-readable name.
   string name = 2;
+  // Ipo date value.
   string ipo_date = 3;
+  // Price range low value.
   string price_range_low = 4;
+  // Price range high value.
   string price_range_high = 5;
+  // Currency code.
   string currency = 6;
+  // Exchange value.
   string exchange = 7;
 }
 
+// IPOCalendarResponse defines the response payload for IPOCalendar.
 message IPOCalendarResponse {
+  // Events value.
   repeated IPOEvent events = 1;
+  // Count value.
   int32 count = 2;
+  // Cache indicator.
   bool cached = 3;
+  // Cache timestamp.
   optional string cache_timestamp = 4;
 }
 
+// GetETFProfileRequest defines the request payload for GetETFProfile.
 message GetETFProfileRequest {
+  // Symbol identifier.
   string symbol = 1;
 }
 
+// ETFProfile message definition.
 message ETFProfile {
+  // Symbol identifier.
   string symbol = 1;
+  // Asset class value.
   string asset_class = 2;
+  // Asset class size value.
   string asset_class_size = 3;
+  // Asset class style value.
   string asset_class_style = 4;
+  // Brand name value.
   string brand_name = 5;
+  // Category value.
   string category = 6;
+  // Focus value.
   string focus = 7;
+  // Niche value.
   string niche = 8;
+  // Strategy value.
   string strategy = 9;
+  // Developer value.
   string developer = 10;
+  // Index tracked value.
   string index_tracked = 11;
+  // Issuer value.
   string issuer = 12;
+  // Inception date value.
   string inception_date = 13;
+  // Data source value.
   string data_source = 14;
+  // Description text.
   string description = 15;
 }
 
+// ETFProfileResponse defines the response payload for ETFProfile.
 message ETFProfileResponse {
+  // Profile value.
   ETFProfile profile = 1;
+  // Cache indicator.
   bool cached = 2;
+  // Cache timestamp.
   optional string cache_timestamp = 3;
 }
 
+// GetDividendsRequest defines the request payload for GetDividends.
 message GetDividendsRequest {
+  // Symbol identifier.
   string symbol = 1;
 }
 
+// DividendData message definition.
 message DividendData {
+  // Ex dividend date value.
   string ex_dividend_date = 1;
+  // Amount value.
   double amount = 2;
+  // Declaration date value.
   optional string declaration_date = 3;
+  // Record date value.
   optional string record_date = 4;
+  // Payment date value.
   optional string payment_date = 5;
 }
 
+// DividendsResponse defines the response payload for Dividends.
 message DividendsResponse {
+  // Symbol identifier.
   string symbol = 1;
+  // Dividends value.
   repeated DividendData dividends = 2;
+  // Count value.
   int32 count = 3;
+  // Cache indicator.
   bool cached = 4;
+  // Cache timestamp.
   optional string cache_timestamp = 5;
 }
 
+// GetSplitsRequest defines the request payload for GetSplits.
 message GetSplitsRequest {
+  // Symbol identifier.
   string symbol = 1;
 }
 
+// SplitData message definition.
 message SplitData {
+  // Date value.
   string date = 1;
+  // Split coefficient value.
   double split_coefficient = 2;
 }
 
+// SplitsResponse defines the response payload for Splits.
 message SplitsResponse {
+  // Symbol identifier.
   string symbol = 1;
+  // Splits value.
   repeated SplitData splits = 2;
+  // Count value.
   int32 count = 3;
+  // Cache indicator.
   bool cached = 4;
+  // Cache timestamp.
   optional string cache_timestamp = 5;
 }
 
 // ============================================================================
 // Intelligence Domain Messages & Service
 // ============================================================================
-
+// GetNewsRequest defines the request payload for GetNews.
 message GetNewsRequest {
-  optional string tickers = 1; // Comma-separated tickers
-  optional string topics = 2; // Comma-separated topics
-  optional string time_from = 3; // YYYYMMDDTHHMM
-  optional string time_to = 4; // YYYYMMDDTHHMM
-  optional string sort = 5; // "LATEST", "EARLIEST", "RELEVANCE"
-  optional int32 limit = 6; // Max 1000
+  // Comma-separated tickers
+  optional string tickers = 1;
+  // Comma-separated topics
+  optional string topics = 2;
+  // YYYYMMDDTHHMM
+  optional string time_from = 3;
+  // YYYYMMDDTHHMM
+  optional string time_to = 4;
+  // "LATEST", "EARLIEST", "RELEVANCE"
+  optional string sort = 5;
+  // Max 1000
+  optional int32 limit = 6;
 }
 
+// NewsArticle message definition.
 message NewsArticle {
+  // Title value.
   string title = 1;
+  // Url value.
   string url = 2;
+  // Time published value.
   string time_published = 3;
+  // Authors value.
   repeated string authors = 4;
+  // Summary value.
   string summary = 5;
+  // Banner image value.
   string banner_image = 6;
+  // Source value.
   string source = 7;
+  // Category within source value.
   string category_within_source = 8;
+  // Source domain value.
   string source_domain = 9;
+  // Topics value.
   repeated NewsTicker topics = 10;
+  // Overall sentiment score score.
   double overall_sentiment_score = 11;
+  // Overall sentiment label value.
   string overall_sentiment_label = 12;
+  // Ticker sentiment value.
   repeated TickerSentiment ticker_sentiment = 13;
 }
 
+// NewsTicker message definition.
 message NewsTicker {
+  // Topic value.
   string topic = 1;
+  // Relevance score score.
   double relevance_score = 2;
 }
 
+// TickerSentiment message definition.
 message TickerSentiment {
+  // Ticker value.
   string ticker = 1;
+  // Relevance score score.
   double relevance_score = 2;
+  // Ticker sentiment score score.
   double ticker_sentiment_score = 3;
+  // Ticker sentiment label value.
   string ticker_sentiment_label = 4;
 }
 
+// NewsResponse defines the response payload for News.
 message NewsResponse {
+  // Articles value.
   repeated NewsArticle articles = 1;
+  // Count value.
   int32 count = 2;
+  // Sentiment score definition value.
   string sentiment_score_definition = 3;
+  // Relevance score definition value.
   string relevance_score_definition = 4;
+  // Cache indicator.
   bool cached = 5;
+  // Cache timestamp.
   optional string cache_timestamp = 6;
 }
 
+// GetTopGainersLosersRequest defines the request payload for GetTopGainersLosers.
 message GetTopGainersLosersRequest {
   // Empty request
 }
 
+// StockMover message definition.
 message StockMover {
+  // Ticker value.
   string ticker = 1;
+  // Price value.
   double price = 2;
+  // Change amount value.
   double change_amount = 3;
+  // Change percentage value.
   double change_percentage = 4;
+  // Volume value.
   int64 volume = 5;
 }
 
+// TopGainersLosersResponse defines the response payload for TopGainersLosers.
 message TopGainersLosersResponse {
+  // Top gainers value.
   repeated StockMover top_gainers = 1;
+  // Top losers value.
   repeated StockMover top_losers = 2;
+  // Most actively traded value.
   repeated StockMover most_actively_traded = 3;
+  // Last updated value.
   string last_updated = 4;
+  // Cache indicator.
   bool cached = 5;
+  // Cache timestamp.
   optional string cache_timestamp = 6;
 }
 
+// GetAnalystRatingsRequest defines the request payload for GetAnalystRatings.
 message GetAnalystRatingsRequest {
+  // Symbol identifier.
   string symbol = 1;
 }
 
+// AnalystRating message definition.
 message AnalystRating {
+  // Analyst firm value.
   string analyst_firm = 1;
+  // Rating value.
   string rating = 2;
+  // Target price value.
   optional double target_price = 3;
+  // Date value.
   string date = 4;
 }
 
+// AnalystRatingsResponse defines the response payload for AnalystRatings.
 message AnalystRatingsResponse {
+  // Symbol identifier.
   string symbol = 1;
+  // Ratings value.
   repeated AnalystRating ratings = 2;
+  // Count value.
   int32 count = 3;
+  // Cache indicator.
   bool cached = 4;
+  // Cache timestamp.
   optional string cache_timestamp = 5;
 }
 
+// GetInsiderTransactionsRequest defines the request payload for GetInsiderTransactions.
 message GetInsiderTransactionsRequest {
+  // Symbol identifier.
   string symbol = 1;
 }
 
+// InsiderTransaction message definition.
 message InsiderTransaction {
+  // Insider name value.
   string insider_name = 1;
+  // Position value.
   string position = 2;
+  // Transaction type value.
   string transaction_type = 3;
+  // Transaction date value.
   string transaction_date = 4;
+  // Shares value.
   int32 shares = 5;
+  // Price per share value.
   optional double price_per_share = 6;
+  // Value value.
   int64 value = 7;
 }
 
+// InsiderTransactionsResponse defines the response payload for InsiderTransactions.
 message InsiderTransactionsResponse {
+  // Symbol identifier.
   string symbol = 1;
+  // Transactions value.
   repeated InsiderTransaction transactions = 2;
+  // Count value.
   int32 count = 3;
+  // Cache indicator.
   bool cached = 4;
+  // Cache timestamp.
   optional string cache_timestamp = 5;
 }
 
+// GetEarningsTranscriptRequest defines the request payload for GetEarningsTranscript.
 message GetEarningsTranscriptRequest {
+  // Symbol identifier.
   string symbol = 1;
+  // Year value.
   optional string year = 2;
+  // Quarter value.
   optional string quarter = 3;
 }
 
+// EarningsTranscript message definition.
 message EarningsTranscript {
+  // Symbol identifier.
   string symbol = 1;
+  // Quarter value.
   string quarter = 2;
+  // Year value.
   string year = 3;
+  // Transcript value.
   string transcript = 4;
+  // Date value.
   string date = 5;
 }
 
+// EarningsTranscriptResponse defines the response payload for EarningsTranscript.
 message EarningsTranscriptResponse {
+  // Data value.
   EarningsTranscript data = 1;
+  // Cache indicator.
   bool cached = 2;
+  // Cache timestamp.
   optional string cache_timestamp = 3;
 }
 
 // ============================================================================
 // Economic Indicators Domain Messages & Service
 // ============================================================================
-
+// GetGDPRequest defines the request payload for GetGDP.
 message GetGDPRequest {
-  optional string interval = 1; // "annual", "quarterly"
+  // "annual", "quarterly"
+  optional string interval = 1;
 }
 
+// EconomicDataPoint message definition.
 message EconomicDataPoint {
+  // Date value.
   string date = 1;
+  // Value value.
   double value = 2;
 }
 
+// EconomicIndicatorResponse defines the response payload for EconomicIndicator.
 message EconomicIndicatorResponse {
+  // Human-readable name.
   string name = 1;
+  // Interval identifier.
   string interval = 2;
+  // Unit value.
   string unit = 3;
+  // Data value.
   repeated EconomicDataPoint data = 4;
+  // Count value.
   int32 count = 5;
+  // Cache indicator.
   bool cached = 6;
+  // Cache timestamp.
   optional string cache_timestamp = 7;
 }
 
+// GetGDPPerCapitaRequest defines the request payload for GetGDPPerCapita.
 message GetGDPPerCapitaRequest {
   // Empty for now
 }
 
+// GetInflationRequest defines the request payload for GetInflation.
 message GetInflationRequest {
   // Empty for now
 }
 
+// GetCPIRequest defines the request payload for GetCPI.
 message GetCPIRequest {
-  optional string interval = 1; // "monthly", "semiannual"
+  // "monthly", "semiannual"
+  optional string interval = 1;
 }
 
+// GetFederalFundsRateRequest defines the request payload for GetFederalFundsRate.
 message GetFederalFundsRateRequest {
-  optional string interval = 1; // "daily", "weekly", "monthly"
+  // "daily", "weekly", "monthly"
+  optional string interval = 1;
 }
 
+// GetTreasuryYieldRequest defines the request payload for GetTreasuryYield.
 message GetTreasuryYieldRequest {
-  optional string interval = 1; // "daily", "weekly", "monthly"
-  optional string maturity = 2; // "3month", "2year", "5year", "7year", "10year", "30year"
+  // "daily", "weekly", "monthly"
+  optional string interval = 1;
+  // "3month", "2year", "5year", "7year", "10year", "30year"
+  optional string maturity = 2;
 }
 
+// GetRetailSalesRequest defines the request payload for GetRetailSales.
 message GetRetailSalesRequest {
   // Empty for now
 }
 
+// GetDurablesRequest defines the request payload for GetDurables.
 message GetDurablesRequest {
   // Empty for now
 }
 
+// GetUnemploymentRequest defines the request payload for GetUnemployment.
 message GetUnemploymentRequest {
   // Empty for now
 }
 
+// GetNonfarmPayrollRequest defines the request payload for GetNonfarmPayroll.
 message GetNonfarmPayrollRequest {
   // Empty for now
 }
@@ -847,214 +1436,352 @@ message GetNonfarmPayrollRequest {
 // ============================================================================
 // Commodity Domain Messages & Service
 // ============================================================================
-
+// GetCommodityRequest defines the request payload for GetCommodity.
 message GetCommodityRequest {
-  string commodity = 1; // "wti", "brent", "natural_gas", "copper", etc.
-  optional string interval = 2; // "daily", "weekly", "monthly"
+  // "wti", "brent", "natural_gas", "copper", etc.
+  string commodity = 1;
+  // "daily", "weekly", "monthly"
+  optional string interval = 2;
 }
 
+// CommodityResponse defines the response payload for Commodity.
 message CommodityResponse {
+  // Human-readable name.
   string name = 1;
+  // Interval identifier.
   string interval = 2;
+  // Unit value.
   string unit = 3;
+  // Data value.
   repeated EconomicDataPoint data = 4;
+  // Count value.
   int32 count = 5;
+  // Cache indicator.
   bool cached = 6;
+  // Cache timestamp.
   optional string cache_timestamp = 7;
 }
 
+// GetAllCommoditiesRequest defines the request payload for GetAllCommodities.
 message GetAllCommoditiesRequest {
+  // Interval identifier.
   optional string interval = 1;
 }
 
+// AllCommoditiesResponse defines the response payload for AllCommodities.
 message AllCommoditiesResponse {
+  // Commodities value.
   map<string, CommodityResponse> commodities = 1;
+  // Count value.
   int32 count = 2;
+  // Cache indicator.
   bool cached = 3;
+  // Cache timestamp.
   optional string cache_timestamp = 4;
 }
 
 // ============================================================================
 // Options Domain Messages & Service
 // ============================================================================
-
+// GetOptionsChainRequest defines the request payload for GetOptionsChain.
 message GetOptionsChainRequest {
+  // Symbol identifier.
   string symbol = 1;
-  optional string date = 2; // YYYY-MM-DD or "latest"
-}
-
-message OptionContract {
-  string contract_id = 1;
-  string symbol = 2;
-  string expiration = 3;
-  double strike = 4;
-  string type = 5; // "call" or "put"
-  optional double last = 6;
-  optional double mark = 7;
-  optional double bid = 8;
-  optional double bid_size = 9;
-  optional double ask = 10;
-  optional double ask_size = 11;
-  optional int64 volume = 12;
-  optional int64 open_interest = 13;
-  optional string date = 14;
-  optional double implied_volatility = 15;
-  optional double delta = 16;
-  optional double gamma = 17;
-  optional double theta = 18;
-  optional double vega = 19;
-  optional double rho = 20;
-}
-
-message OptionsChainResponse {
-  string symbol = 1;
-  repeated OptionContract contracts = 2;
-  int32 count = 3;
-  bool cached = 4;
-  optional string cache_timestamp = 5;
-}
-
-message GetHistoricalOptionsRequest {
-  string symbol = 1;
+  // YYYY-MM-DD or "latest"
   optional string date = 2;
 }
 
-message HistoricalOptionsResponse {
+// OptionContract message definition.
+message OptionContract {
+  // Contract id identifier.
+  string contract_id = 1;
+  // Symbol identifier.
+  string symbol = 2;
+  // Expiration value.
+  string expiration = 3;
+  // Strike value.
+  double strike = 4;
+  // "call" or "put"
+  string type = 5;
+  // Last value.
+  optional double last = 6;
+  // Mark value.
+  optional double mark = 7;
+  // Bid value.
+  optional double bid = 8;
+  // Bid size value.
+  optional double bid_size = 9;
+  // Ask value.
+  optional double ask = 10;
+  // Ask size value.
+  optional double ask_size = 11;
+  // Volume value.
+  optional int64 volume = 12;
+  // Open interest value.
+  optional int64 open_interest = 13;
+  // Date value.
+  optional string date = 14;
+  // Implied volatility value.
+  optional double implied_volatility = 15;
+  // Delta value.
+  optional double delta = 16;
+  // Gamma value.
+  optional double gamma = 17;
+  // Theta value.
+  optional double theta = 18;
+  // Vega value.
+  optional double vega = 19;
+  // Rho value.
+  optional double rho = 20;
+}
+
+// OptionsChainResponse defines the response payload for OptionsChain.
+message OptionsChainResponse {
+  // Symbol identifier.
   string symbol = 1;
+  // Contracts value.
+  repeated OptionContract contracts = 2;
+  // Count value.
+  int32 count = 3;
+  // Cache indicator.
+  bool cached = 4;
+  // Cache timestamp.
+  optional string cache_timestamp = 5;
+}
+
+// GetHistoricalOptionsRequest defines the request payload for GetHistoricalOptions.
+message GetHistoricalOptionsRequest {
+  // Symbol identifier.
+  string symbol = 1;
+  // Date value.
+  optional string date = 2;
+}
+
+// HistoricalOptionsResponse defines the response payload for HistoricalOptions.
+message HistoricalOptionsResponse {
+  // Symbol identifier.
+  string symbol = 1;
+  // Date value.
   string date = 2;
+  // Contracts value.
   repeated OptionContract contracts = 3;
+  // Count value.
   int32 count = 4;
+  // Cache indicator.
   bool cached = 5;
+  // Cache timestamp.
   optional string cache_timestamp = 6;
 }
 
+// GetOptionContractRequest defines the request payload for GetOptionContract.
 message GetOptionContractRequest {
+  // Contract id identifier.
   string contract_id = 1;
 }
 
+// OptionContractResponse defines the response payload for OptionContract.
 message OptionContractResponse {
+  // Contract value.
   OptionContract contract = 1;
+  // Cache indicator.
   bool cached = 2;
+  // Cache timestamp.
   optional string cache_timestamp = 3;
 }
 
 // ============================================================================
 // Service Info & Health
 // ============================================================================
-
+// HealthCheckRequest defines the request payload for HealthCheck.
 message HealthCheckRequest {
   // Empty request
 }
 
+// HealthCheckResponse defines the response payload for HealthCheck.
 message HealthCheckResponse {
-  string status = 1; // "healthy", "degraded", "unhealthy"
+  // "healthy", "degraded", "unhealthy"
+  string status = 1;
+  // Service name.
   string service = 2;
+  // Semantic version string.
   string version = 3;
+  // Uptime seconds value.
   int64 uptime_seconds = 4;
+  // Cache size value.
   int64 cache_size = 5;
-  map<string, int32> data_sources = 6; // data source name -> status (1=active, 0=inactive)
+  // data source name -> status (1=active, 0=inactive)
+  map<string, int32> data_sources = 6;
 }
 
+// GetServiceInfoRequest defines the request payload for GetServiceInfo.
 message GetServiceInfoRequest {
   // Empty request
 }
 
+// ServiceInfo message definition.
 message ServiceInfo {
+  // Service name value.
   string service_name = 1;
+  // Semantic version string.
   string version = 2;
+  // Environment value.
   string environment = 3;
+  // Supported assets value.
   repeated string supported_assets = 4;
+  // Data providers value.
   repeated string data_providers = 5;
+  // Features value.
   map<string, string> features = 6;
 }
 
+// GetCacheStatsRequest defines the request payload for GetCacheStats.
 message GetCacheStatsRequest {
   // Empty request
 }
 
+// CacheStats message definition.
 message CacheStats {
+  // Total entries value.
   int64 total_entries = 1;
+  // Total size bytes value.
   int64 total_size_bytes = 2;
+  // Hit rate value.
   double hit_rate = 3;
+  // Hits value.
   int64 hits = 4;
+  // Misses value.
   int64 misses = 5;
+  // Entries by domain value.
   map<string, int64> entries_by_domain = 6;
 }
 
 // ============================================================================
 // Main Service Definition
 // ============================================================================
-
+// MarketDataService service definition.
 service MarketDataService {
   // Health & Info
+  // HealthCheck RPC.
   rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+  // GetServiceInfo RPC.
   rpc GetServiceInfo(GetServiceInfoRequest) returns (ServiceInfo);
+  // GetCacheStats RPC.
   rpc GetCacheStats(GetCacheStatsRequest) returns (CacheStats);
 
   // Stock Domain
+  // GetDailyOHLCV RPC.
   rpc GetDailyOHLCV(GetDailyOHLCVRequest) returns (OHLCVResponse);
+  // GetIntradayOHLCV RPC.
   rpc GetIntradayOHLCV(GetIntradayOHLCVRequest) returns (OHLCVResponse);
+  // GetWeeklyOHLCV RPC.
   rpc GetWeeklyOHLCV(GetWeeklyOHLCVRequest) returns (OHLCVResponse);
+  // GetMonthlyOHLCV RPC.
   rpc GetMonthlyOHLCV(GetMonthlyOHLCVRequest) returns (OHLCVResponse);
+  // GetQuote RPC.
   rpc GetQuote(GetQuoteRequest) returns (QuoteResponse);
+  // SearchSymbols RPC.
   rpc SearchSymbols(SearchSymbolsRequest) returns (SearchSymbolsResponse);
   // Batch operations for multiple symbols (Strategy/Backtest services)
+  // BatchGetDailyOHLCV RPC.
   rpc BatchGetDailyOHLCV(BatchGetDailyOHLCVRequest) returns (BatchGetDailyOHLCVResponse);
+  // BatchGetQuote RPC.
   rpc BatchGetQuote(BatchGetQuoteRequest) returns (BatchGetQuoteResponse);
 
   // Forex Domain
+  // GetForexDaily RPC.
   rpc GetForexDaily(GetForexDailyRequest) returns (ForexResponse);
+  // GetForexIntraday RPC.
   rpc GetForexIntraday(GetForexIntradayRequest) returns (ForexResponse);
+  // GetForexWeekly RPC.
   rpc GetForexWeekly(GetForexWeeklyRequest) returns (ForexResponse);
+  // GetForexMonthly RPC.
   rpc GetForexMonthly(GetForexMonthlyRequest) returns (ForexResponse);
+  // GetForexRate RPC.
   rpc GetForexRate(GetForexRateRequest) returns (ForexRateResponse);
+  // ListForexPairs RPC.
   rpc ListForexPairs(ListForexPairsRequest) returns (ListForexPairsResponse);
 
   // Crypto Domain
+  // GetCryptoDaily RPC.
   rpc GetCryptoDaily(GetCryptoDailyRequest) returns (CryptoResponse);
+  // GetCryptoIntraday RPC.
   rpc GetCryptoIntraday(GetCryptoIntradayRequest) returns (CryptoResponse);
+  // GetCryptoWeekly RPC.
   rpc GetCryptoWeekly(GetCryptoWeeklyRequest) returns (CryptoResponse);
+  // GetCryptoMonthly RPC.
   rpc GetCryptoMonthly(GetCryptoMonthlyRequest) returns (CryptoResponse);
+  // ListCryptoSymbols RPC.
   rpc ListCryptoSymbols(ListCryptoSymbolsRequest) returns (ListCryptoSymbolsResponse);
+  // BatchCryptoQuote RPC.
   rpc BatchCryptoQuote(BatchCryptoQuoteRequest) returns (BatchCryptoQuoteResponse);
 
   // Fundamental Domain
+  // GetCompanyOverview RPC.
   rpc GetCompanyOverview(GetCompanyOverviewRequest) returns (CompanyOverviewResponse);
+  // GetIncomeStatement RPC.
   rpc GetIncomeStatement(GetIncomeStatementRequest) returns (IncomeStatementResponse);
+  // GetBalanceSheet RPC.
   rpc GetBalanceSheet(GetBalanceSheetRequest) returns (BalanceSheetResponse);
+  // GetCashFlow RPC.
   rpc GetCashFlow(GetCashFlowRequest) returns (CashFlowResponse);
+  // GetEarnings RPC.
   rpc GetEarnings(GetEarningsRequest) returns (EarningsResponse);
+  // GetEarningsCalendar RPC.
   rpc GetEarningsCalendar(GetEarningsCalendarRequest) returns (EarningsCalendarResponse);
+  // GetIPOCalendar RPC.
   rpc GetIPOCalendar(GetIPOCalendarRequest) returns (IPOCalendarResponse);
+  // GetETFProfile RPC.
   rpc GetETFProfile(GetETFProfileRequest) returns (ETFProfileResponse);
+  // GetDividends RPC.
   rpc GetDividends(GetDividendsRequest) returns (DividendsResponse);
+  // GetSplits RPC.
   rpc GetSplits(GetSplitsRequest) returns (SplitsResponse);
 
   // Intelligence Domain
+  // GetNews RPC.
   rpc GetNews(GetNewsRequest) returns (NewsResponse);
+  // GetTopGainersLosers RPC.
   rpc GetTopGainersLosers(GetTopGainersLosersRequest) returns (TopGainersLosersResponse);
+  // GetAnalystRatings RPC.
   rpc GetAnalystRatings(GetAnalystRatingsRequest) returns (AnalystRatingsResponse);
+  // GetInsiderTransactions RPC.
   rpc GetInsiderTransactions(GetInsiderTransactionsRequest) returns (InsiderTransactionsResponse);
+  // GetEarningsTranscript RPC.
   rpc GetEarningsTranscript(GetEarningsTranscriptRequest) returns (EarningsTranscriptResponse);
 
   // Economic Indicators Domain
+  // GetGDP RPC.
   rpc GetGDP(GetGDPRequest) returns (EconomicIndicatorResponse);
+  // GetGDPPerCapita RPC.
   rpc GetGDPPerCapita(GetGDPPerCapitaRequest) returns (EconomicIndicatorResponse);
+  // GetInflation RPC.
   rpc GetInflation(GetInflationRequest) returns (EconomicIndicatorResponse);
+  // GetCPI RPC.
   rpc GetCPI(GetCPIRequest) returns (EconomicIndicatorResponse);
+  // GetFederalFundsRate RPC.
   rpc GetFederalFundsRate(GetFederalFundsRateRequest) returns (EconomicIndicatorResponse);
+  // GetTreasuryYield RPC.
   rpc GetTreasuryYield(GetTreasuryYieldRequest) returns (EconomicIndicatorResponse);
+  // GetRetailSales RPC.
   rpc GetRetailSales(GetRetailSalesRequest) returns (EconomicIndicatorResponse);
+  // GetDurables RPC.
   rpc GetDurables(GetDurablesRequest) returns (EconomicIndicatorResponse);
+  // GetUnemployment RPC.
   rpc GetUnemployment(GetUnemploymentRequest) returns (EconomicIndicatorResponse);
+  // GetNonfarmPayroll RPC.
   rpc GetNonfarmPayroll(GetNonfarmPayrollRequest) returns (EconomicIndicatorResponse);
 
   // Commodity Domain
+  // GetCommodity RPC.
   rpc GetCommodity(GetCommodityRequest) returns (CommodityResponse);
+  // GetAllCommodities RPC.
   rpc GetAllCommodities(GetAllCommoditiesRequest) returns (AllCommoditiesResponse);
 
   // Options Domain
+  // GetOptionsChain RPC.
   rpc GetOptionsChain(GetOptionsChainRequest) returns (OptionsChainResponse);
+  // GetHistoricalOptions RPC.
   rpc GetHistoricalOptions(GetHistoricalOptionsRequest) returns (HistoricalOptionsResponse);
+  // GetOptionContract RPC.
   rpc GetOptionContract(GetOptionContractRequest) returns (OptionContractResponse);
 }

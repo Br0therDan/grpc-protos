@@ -2,29 +2,22 @@ syntax = "proto3";
 
 package ml;
 
-// ML Service - gRPC API
-// Used by Backtest Service for ML prediction and Walk-Forward optimization
-
+// ML Service - gRPC API used for ML prediction, walk-forward optimization, and
+// feature storage workflows.
 service MLService {
-  // Walk-Forward parameter optimization (Server Streaming for progress updates)
+  // Walk-forward parameter optimization streaming progress updates to callers.
   rpc OptimizeParameters(OptimizeRequest) returns (stream OptimizeProgress);
-
-  // Walk-Forward statistical analysis
+  // Run statistical analysis across walk-forward windows.
   rpc AnalyzeWalkForward(AnalyzeRequest) returns (AnalyzeResponse);
-
-  // ML signal prediction (single)
+  // Generate a single ML signal prediction.
   rpc PredictSignal(MLPredictionRequest) returns (MLSignalInsight);
-
-  // ML signal prediction (batch with streaming)
+  // Stream batch ML predictions for multiple feature vectors.
   rpc PredictSignalsBatch(BatchMLPredictionRequest) returns (stream MLSignalInsight);
-
-  // Store features in Feature Store
+  // Store computed features inside the feature store.
   rpc StoreFeatures(FeatureStoreRequest) returns (FeatureStoreResponse);
-
-  // Health check
+  // Report service health state.
   rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
-
-  // ML Backtest Performance Analysis (Backtest Service → ML Service)
+  // Analyze ML-driven backtest performance submitted by backtest service.
   rpc AnalyzeMLBacktestPerformance(AnalyzeMLBacktestPerformanceRequest) returns (AnalyzeMLBacktestPerformanceResponse);
 }
 
@@ -32,63 +25,104 @@ service MLService {
 // Common Messages
 // ============================================================
 
+// Empty payload for health checks.
 message HealthCheckRequest {}
 
+// Response payload describing service health.
 message HealthCheckResponse {
-  string status = 1; // "ok" or "error"
+  // Service health status string ("ok" or "error").
+  string status = 1;
+  // Human-readable service identifier.
   string service = 2;
+  // Semantic version reported by the service.
   string version = 3;
 }
 
+// Time period boundaries used during optimization windows.
 message Period {
-  string start_date = 1; // ISO 8601 format
-  string end_date = 2; // ISO 8601 format
+  // Inclusive ISO 8601 start date for the period.
+  string start_date = 1;
+  // Inclusive ISO 8601 end date for the period.
+  string end_date = 2;
 }
 
+// Constraint definition used to limit optimization parameters.
 message Constraint {
-  string op = 1; // "<=", "<", ">=", ">", "=="
-  double value = 2; // Threshold value
+  // Comparison operator ("<=", "<", ">=", ">", "==").
+  string op = 1;
+  // Threshold value applied to the operator.
+  double value = 2;
 }
 
 // ============================================================
 // Walk-Forward Optimization
 // ============================================================
 
+// Request payload for kicking off walk-forward optimization.
 message OptimizeRequest {
+  // Identifier of the walk-forward job managed by caller.
   string walk_forward_job_id = 1;
+  // Index of the walk-forward window currently processing.
   int32 window_index = 2;
+  // Strategy version identifier tied to this optimization.
   string strategy_version_id = 3;
+  // Training period boundaries for the current window.
   Period train_period = 4;
-  map<string, ParameterValues> parameter_grid = 5; // e.g., "sma_fast": [5, 10, 20]
-  string optimization_metric = 6; // e.g., "sharpe_ratio"
-  string metric_objective = 7; // "maximize" or "minimize"
+  // Parameter grid describing candidate parameter sets (e.g., "sma_fast": [5, 10, 20]).
+  map<string, ParameterValues> parameter_grid = 5;
+  // Optimization metric to evaluate (e.g., "sharpe_ratio").
+  string optimization_metric = 6;
+  // Objective direction for the metric ("maximize" or "minimize").
+  string metric_objective = 7;
+  // Additional constraints applied to parameter selection.
   map<string, Constraint> constraints = 8;
+  // Symbols participating in this optimization job.
   repeated string symbols = 9;
-  string interval = 10; // e.g., "1d"
-  string user_id = 11; // For authorization
+  // Data interval powering the optimization (e.g., "1d").
+  string interval = 10;
+  // User ID for authorization and auditing.
+  string user_id = 11;
 }
 
+// Parameter values supported for a single hyper-parameter.
 message ParameterValues {
-  repeated double values = 1; // Supports both int and float
+  // Candidate numeric values for the parameter (supports ints or floats).
+  repeated double values = 1;
 }
 
+// Streaming progress payload returned while optimizing parameters.
 message OptimizeProgress {
+  // Index of the trial currently being reported.
   int32 trial_index = 1;
+  // Total number of trials in the current optimization job.
   int32 total_trials = 2;
+  // Parameter values used in the current trial.
   map<string, double> current_params = 3;
+  // Score achieved by the current parameter set.
   double current_score = 4;
+  // Best parameter set discovered so far.
   map<string, double> best_params = 5;
+  // Highest score achieved so far.
   double best_score = 6;
-  string status = 7; // "RUNNING", "COMPLETED", "FAILED"
-  string optimization_run_id = 8; // Set when COMPLETED
-  map<string, double> is_metrics = 9; // Final in-sample metrics
+  // Current optimization status ("RUNNING", "COMPLETED", "FAILED").
+  string status = 7;
+  // Identifier of the completed optimization run.
+  string optimization_run_id = 8;
+  // Final in-sample metrics for the optimized parameters.
+  map<string, double> is_metrics = 9;
+  // Total execution time for the run in seconds.
   double execution_time_seconds = 10;
-  repeated TrialResult trials = 11; // All trial results (sent in final message)
+  // Collection of trial results emitted at completion time.
+  repeated TrialResult trials = 11;
 }
 
+// Detailed result for a single optimization trial.
 message TrialResult {
+  // Parameter values evaluated during the trial.
   map<string, double> params = 1;
+  // All recorded metrics for the trial.
   map<string, double> metrics = 2;
+  // Aggregate score calculated for the trial.
   double score = 3;
 }
 
@@ -96,33 +130,55 @@ message TrialResult {
 // Walk-Forward Analysis
 // ============================================================
 
+// Request payload for walk-forward statistical analysis.
 message AnalyzeRequest {
+  // Identifier of the originating walk-forward job.
   string walk_forward_job_id = 1;
+  // Summaries for each evaluated window.
   repeated WindowResultSummary window_results = 2;
+  // User ID performing the analysis.
   string user_id = 3;
 }
 
+// Aggregated metrics for a single walk-forward window.
 message WindowResultSummary {
+  // Index of the window under review.
   int32 window_index = 1;
+  // In-sample return value for the window.
   double is_return = 2;
+  // Out-of-sample return value for the window.
   double oos_return = 3;
+  // In-sample Sharpe ratio.
   double is_sharpe = 4;
+  // Out-of-sample Sharpe ratio.
   double oos_sharpe = 5;
 }
 
+// Response summarizing walk-forward analysis insights.
 message AnalyzeResponse {
+  // Unique identifier for the analysis record.
   string analysis_id = 1;
+  // Efficiency ratio computed from walk-forward windows.
   double efficiency_ratio = 2;
+  // Stability score describing variance in performance.
   double stability_score = 3;
+  // Calculated p-values for hypothesis tests.
   PValues p_values = 4;
+  // Human-readable interpretation of the metrics.
   string interpretation = 5;
+  // Recommended action derived from the analysis.
   string recommendation = 6;
-  double created_at = 7; // Unix timestamp
+  // Unix timestamp (seconds) when the record was created.
+  double created_at = 7;
 }
 
+// Hypothesis testing p-values for walk-forward evaluation.
 message PValues {
+  // P-value comparing in-sample versus out-of-sample returns.
   double is_vs_oos_return = 1;
+  // P-value comparing in-sample versus out-of-sample Sharpe.
   double is_vs_oos_sharpe = 2;
+  // P-value evaluating out-of-sample performance versus zero.
   double oos_vs_zero = 3;
 }
 
@@ -130,73 +186,119 @@ message PValues {
 // ML Prediction
 // ============================================================
 
+// Prediction request for a single feature vector.
 message MLPredictionRequest {
+  // Feature vector used as model input.
   FeatureVector features = 1;
-  string model_id = 2; // Default: "default"
-  string user_id = 3;
-}
-
-message BatchMLPredictionRequest {
-  repeated FeatureVector features_list = 1;
+  // Identifier for the target model (defaults to "default").
   string model_id = 2;
+  // User ID invoking the prediction.
   string user_id = 3;
 }
 
+// Batch prediction request supporting multiple feature vectors.
+message BatchMLPredictionRequest {
+  // Collection of feature vectors to evaluate.
+  repeated FeatureVector features_list = 1;
+  // Identifier for the target model (defaults to "default").
+  string model_id = 2;
+  // User ID invoking the predictions.
+  string user_id = 3;
+}
+
+// Rich feature vector powering ML predictions.
 message FeatureVector {
-  // Price Features (5)
+  // 1-day return percentage.
   optional double returns_1d = 1;
+  // 5-day return percentage.
   optional double returns_5d = 2;
+  // 20-day return percentage.
   optional double returns_20d = 3;
+  // 20-day realized volatility.
   optional double volatility_20d = 4;
+  // Relative volume ratio versus average.
   optional double volume_ratio = 5;
 
-  // Technical Indicators (13)
+  // 5-period simple moving average.
   optional double sma_5 = 6;
+  // 20-period simple moving average.
   optional double sma_20 = 7;
+  // 50-period simple moving average.
   optional double sma_50 = 8;
+  // 200-period simple moving average.
   optional double sma_200 = 9;
+  // 12-period exponential moving average.
   optional double ema_12 = 10;
+  // 26-period exponential moving average.
   optional double ema_26 = 11;
+  // Relative strength index using a 14-period window.
   optional double rsi_14 = 12;
+  // Moving average convergence divergence value.
   optional double macd = 13;
+  // MACD signal line value.
   optional double macd_signal = 14;
+  // MACD histogram value.
   optional double macd_histogram = 15;
+  // Upper Bollinger Band level.
   optional double bb_upper = 16;
+  // Middle Bollinger Band level.
   optional double bb_middle = 17;
+  // Lower Bollinger Band level.
   optional double bb_lower = 18;
 
-  // Statistical Features (3)
+  // Distribution skewness over the lookback horizon.
   optional double skewness = 19;
+  // Distribution kurtosis over the lookback horizon.
   optional double kurtosis = 20;
+  // Autocorrelation at the configured lag.
   optional double autocorr = 21;
 
-  // Portfolio Context (4)
+  // Cash exposure ratio for the portfolio context.
   optional double cash_ratio = 22;
+  // Position exposure ratio for the portfolio.
   optional double position_ratio = 23;
+  // Profit and loss snapshot for the portfolio.
   optional double pnl = 24;
+  // Drawdown magnitude for the portfolio.
   optional double drawdown = 25;
 
-  // Regime Detection (2)
+  // Detected regime classification label.
   optional string regime_type = 26;
+  // Numeric regime trend strength indicator.
   optional double trend_strength = 27;
 }
 
+// Prediction payload describing ML-generated insights.
 message MLSignalInsight {
+  // Symbol ticker referenced by the prediction.
   string symbol = 1;
-  string as_of = 2; // ISO 8601 timestamp
+  // ISO 8601 timestamp of the prediction.
+  string as_of = 2;
+  // Lookback window size in days.
   int32 lookback_days = 3;
+  // Probability of the predicted outcome.
   double probability = 4;
+  // Confidence score assigned to the prediction.
   double confidence = 5;
-  string recommendation = 6; // "BUY", "SELL", "HOLD"
+  // Recommended action ("BUY", "SELL", "HOLD").
+  string recommendation = 6;
+  // Feature contribution breakdown for interpretability.
   repeated FeatureContribution feature_contributions = 7;
+  // Top contributing signals included in the explanation.
   repeated string top_signals = 8;
 }
 
+// Single feature importance value contributing to an insight.
 message FeatureContribution {
+  // Name of the feature.
   string feature = 1;
+  // Feature value used for inference.
   double value = 2;
+  // Relative weight the model assigned to the feature.
   double weight = 3;
+  // Directional impact of the feature on the output.
   double impact = 4;
+  // Direction label such as "positive" or "negative".
   string direction = 5;
 }
 
@@ -204,18 +306,29 @@ message FeatureContribution {
 // Feature Store
 // ============================================================
 
+// Request payload for persisting features in the store.
 message FeatureStoreRequest {
+  // Symbol all stored features belong to.
   string symbol = 1;
+  // Data interval associated with the feature vector.
   string interval = 2;
-  string timestamp = 3; // ISO 8601
+  // ISO 8601 timestamp describing feature observation time.
+  string timestamp = 3;
+  // Feature vector to persist.
   FeatureVector features = 4;
-  map<string, string> metadata = 5; // Optional metadata
+  // Arbitrary metadata key/value pairs.
+  map<string, string> metadata = 5;
+  // User ID making the request.
   string user_id = 6;
 }
 
+// Response payload returned after storing features.
 message FeatureStoreResponse {
+  // Generated identifier for the persisted feature set.
   string feature_id = 1;
-  string stored_at = 2; // ISO 8601
+  // ISO 8601 timestamp when the features were stored.
+  string stored_at = 2;
+  // Quality score assigned to the stored record.
   double quality_score = 3;
 }
 
@@ -223,30 +336,50 @@ message FeatureStoreResponse {
 // ML Backtest Performance Analysis
 // ============================================================
 
+// Request payload for analyzing ML-driven backtests.
 message AnalyzeMLBacktestPerformanceRequest {
-  string job_id = 1; // Backtest job ID
-  string model_name = 2; // Model name
-  string model_version = 3; // Model version
-  repeated MLPrediction predictions = 4; // ML prediction results
-  repeated ActualOutcome actual_outcomes = 5; // Actual outcomes
-  map<string, float> feature_importances = 6; // Feature importances (optional)
-  string user_id = 7; // User ID
+  // Backtest job identifier.
+  string job_id = 1;
+  // Name of the evaluated model.
+  string model_name = 2;
+  // Version of the evaluated model.
+  string model_version = 3;
+  // ML predictions generated during the backtest.
+  repeated MLPrediction predictions = 4;
+  // Actual observed outcomes used for comparison.
+  repeated ActualOutcome actual_outcomes = 5;
+  // Optional feature importance scores.
+  map<string, float> feature_importances = 6;
+  // User ID issuing the analysis.
+  string user_id = 7;
 }
 
+// Stored ML prediction record for analysis.
 message MLPrediction {
-  string timestamp = 1; // ISO 8601 format (e.g., "2025-01-01T09:30:00Z")
-  string prediction = 2; // "BUY", "SELL", "HOLD"
-  float confidence = 3; // 0.0 ~ 1.0
-  string regime = 4; // "bull", "bear", "sideways" (optional)
+  // ISO 8601 timestamp when the prediction was generated.
+  string timestamp = 1;
+  // Predicted action ("BUY", "SELL", "HOLD").
+  string prediction = 2;
+  // Confidence level between 0.0 and 1.0.
+  float confidence = 3;
+  // Detected regime label such as "bull", "bear", or "sideways".
+  string regime = 4;
 }
 
+// Ground-truth outcome paired with a prediction.
 message ActualOutcome {
-  string timestamp = 1; // ISO 8601 format
-  string actual = 2; // "BUY", "SELL", "HOLD"
+  // ISO 8601 timestamp of the measurement.
+  string timestamp = 1;
+  // Observed action label ("BUY", "SELL", "HOLD").
+  string actual = 2;
 }
 
+// Response returned after analyzing ML backtest performance.
 message AnalyzeMLBacktestPerformanceResponse {
-  string performance_id = 1; // Generated Performance Document ID
-  bool success = 2; // Success status
-  string message = 3; // Message (error details if failed)
+  // Identifier for the generated performance document.
+  string performance_id = 1;
+  // Flag indicating whether the analysis succeeded.
+  bool success = 2;
+  // Optional message or error details.
+  string message = 3;
 }
