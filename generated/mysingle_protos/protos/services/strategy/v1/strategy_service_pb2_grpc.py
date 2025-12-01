@@ -57,6 +57,11 @@ class StrategyServiceStub(object):
                 request_serializer=protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.ListUserStrategiesRequest.SerializeToString,
                 response_deserializer=protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.StrategyResponse.FromString,
                 _registered_method=True)
+        self.ArchiveStrategy = channel.unary_unary(
+                '/strategy.v1.StrategyService/ArchiveStrategy',
+                request_serializer=protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.ArchiveStrategyRequest.SerializeToString,
+                response_deserializer=protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.ArchiveStrategyResponse.FromString,
+                _registered_method=True)
         self.GetStrategy = channel.unary_unary(
                 '/strategy.v1.StrategyService/GetStrategy',
                 request_serializer=protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.GetStrategyRequest.SerializeToString,
@@ -151,6 +156,14 @@ class StrategyServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def ArchiveStrategy(self, request, context):
+        """Archive a strategy (soft delete)
+        ArchiveStrategy RPC.
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def GetStrategy(self, request, context):
         """---- ml-service compatibility RPCs ----
         These RPCs are required by `ml-service` and added for backward/forward compatibility.
@@ -223,6 +236,11 @@ def add_StrategyServiceServicer_to_server(servicer, server):
                     servicer.ListUserStrategies,
                     request_deserializer=protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.ListUserStrategiesRequest.FromString,
                     response_serializer=protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.StrategyResponse.SerializeToString,
+            ),
+            'ArchiveStrategy': grpc.unary_unary_rpc_method_handler(
+                    servicer.ArchiveStrategy,
+                    request_deserializer=protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.ArchiveStrategyRequest.FromString,
+                    response_serializer=protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.ArchiveStrategyResponse.SerializeToString,
             ),
             'GetStrategy': grpc.unary_unary_rpc_method_handler(
                     servicer.GetStrategy,
@@ -464,6 +482,33 @@ class StrategyService(object):
             '/strategy.v1.StrategyService/ListUserStrategies',
             protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.ListUserStrategiesRequest.SerializeToString,
             protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.StrategyResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def ArchiveStrategy(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/strategy.v1.StrategyService/ArchiveStrategy',
+            protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.ArchiveStrategyRequest.SerializeToString,
+            protos_dot_services_dot_strategy_dot_v1_dot_strategy__service__pb2.ArchiveStrategyResponse.FromString,
             options,
             channel_credentials,
             insecure,
