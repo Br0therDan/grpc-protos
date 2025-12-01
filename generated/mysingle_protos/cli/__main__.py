@@ -15,7 +15,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from .commands import init, status
+from .commands import generate, init, status, sync, validate
 from .models import ProtoConfig
 from .utils import Color, LogLevel, colorize, log
 
@@ -78,11 +78,33 @@ def build_parser() -> argparse.ArgumentParser:
     )
     status.setup_parser(status_parser)
 
+    # sync 명령
+    sync_parser = subparsers.add_parser(
+        "sync",
+        help="서비스 proto 파일을 중앙 저장소로 동기화",
+        description="서비스 디렉터리의 proto 파일을 grpc-protos 저장소로 복사합니다.",
+    )
+    sync.setup_parser(sync_parser)
+
+    # generate 명령
+    generate_parser = subparsers.add_parser(
+        "generate",
+        help="Buf를 사용하여 Python gRPC 스텁 생성",
+        description="proto 파일로부터 Python 코드를 생성하고 import 경로를 수정합니다.",
+    )
+    generate.setup_parser(generate_parser)
+
+    # validate 명령
+    validate_parser = subparsers.add_parser(
+        "validate",
+        help="Proto 파일 검증 (lint, format, breaking)",
+        description="Buf를 사용하여 proto 파일의 린트, 포맷, Breaking change를 검사합니다.",
+    )
+    validate.setup_parser(validate_parser)
+
     # TODO: 추가 명령어 구현 예정
-    # - sync: Proto 파일 동기화
-    # - generate: 코드 생성
-    # - validate: Proto 파일 검증 (buf lint)
-    # - check-breaking: Breaking change 검증
+    # - branch: 브랜치 관리
+    # - pr: Pull Request 생성
     # - release: 릴리즈 생성
 
     return parser
@@ -112,6 +134,12 @@ def main(argv: list[str] | None = None) -> int:
             return init.execute(args, config)
         elif args.command == "status":
             return status.execute(args, config)
+        elif args.command == "sync":
+            return sync.execute(args, config)
+        elif args.command == "generate":
+            return generate.execute(args, config)
+        elif args.command == "validate":
+            return validate.execute(args, config)
         else:
             log(f"알 수 없는 명령: {args.command}", LogLevel.ERROR)
             parser.print_help()
