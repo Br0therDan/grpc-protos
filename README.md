@@ -97,7 +97,96 @@ strategy-service     1           /path/to/services/strategy-service/protos
 market-data-service  1           /path/to/services/market-data-service/protos
 ```
 
-#### 3. 도움말
+#### 3. Proto 파일 동기화
+
+서비스 디렉터리의 proto 파일을 중앙 저장소로 복사합니다.
+
+```bash
+# 전체 서비스 동기화
+uv run proto-cli sync
+
+# 특정 서비스만 동기화
+uv run proto-cli sync strategy-service
+
+# 변경 사항 미리보기 (실제 복사 안 함)
+uv run proto-cli sync --dry-run
+```
+
+#### 4. Python 코드 생성
+
+Buf를 사용하여 proto 파일로부터 Python gRPC 스텁을 생성합니다.
+
+```bash
+# 코드 생성 및 import 경로 수정
+uv run proto-cli generate
+
+# import 경로 수정 건너뛰기
+uv run proto-cli generate --skip-rewrite
+```
+
+**출력 예시:**
+```
+============================================================
+  Proto 코드 생성
+============================================================
+
+📋 Buf를 사용하여 코드 생성 중...
+✅ 코드 생성 완료
+
+📋 생성된 파일의 import 경로 수정 중...
+🔍 수정: protos/services/strategy/v1/strategy_service_pb2.py
+✅ 총 15개 파일 import 수정 완료
+✅ 모든 작업 완료!
+```
+
+#### 5. Proto 파일 검증
+
+Buf lint, format check, breaking change 검증을 실행합니다.
+
+```bash
+# 기본 검증 (lint + format)
+uv run proto-cli validate
+
+# Format 오류 자동 수정
+uv run proto-cli validate --fix
+
+# Breaking change 검사 포함
+uv run proto-cli validate --breaking
+
+# Lint 건너뛰기
+uv run proto-cli validate --skip-lint
+
+# 특정 브랜치와 비교
+uv run proto-cli validate --breaking --against dev
+```
+
+**출력 예시:**
+```
+============================================================
+  Proto 파일 검증
+============================================================
+
+📋 Buf lint 실행 중...
+✅ Lint 통과
+
+📋 Buf format check 실행 중...
+✅ Format 통과
+
+📋 Breaking change 검사 중 (vs main)...
+✅ Breaking change 없음
+
+============================================================
+  검증 결과
+============================================================
+
+Lint            ✅ 통과
+Format          ✅ 통과
+Breaking        ✅ 통과
+
+🎉 모든 검증 통과!
+```
+
+#### 6. 도움말
 
 ```bash
 uv run proto-cli --help
@@ -136,10 +225,8 @@ git checkout -b feature/add-batch-get-strategies
 # 2. Proto 파일 수정
 vim protos/services/strategy/v1/strategy_service.proto
 
-# 3. Buf 검증
-buf lint
-buf format -w
-buf breaking --against '.git#branch=main'
+# 3. CLI를 사용한 검증
+uv run proto-cli validate --fix
 
 # 4. 커밋 및 푸시
 git add protos/
