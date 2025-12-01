@@ -19,6 +19,7 @@ jobs:
               uses: bufbuild/buf-action@v1
               with:
                   version: "1.60.0"
+                  push: false
 
             - name: Lint protos
               run: buf lint
@@ -37,6 +38,7 @@ jobs:
               uses: bufbuild/buf-action@v1
               with:
                   version: "1.60.0"
+                  push: false
 
             - name: Check breaking changes against main
               run: |
@@ -59,6 +61,7 @@ jobs:
               uses: bufbuild/buf-action@v1
               with:
                   version: "1.60.0"
+                  push: false
 
             - name: Setup Python
               uses: actions/setup-python@v5
